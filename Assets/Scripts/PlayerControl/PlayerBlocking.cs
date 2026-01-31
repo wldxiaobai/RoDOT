@@ -4,23 +4,31 @@ using UnityEngine;
 
 public class PlayerBlocking : MonoBehaviour
 {
-    [Header("¸ñµ²ÉèÖÃ")]
-    [SerializeField] private float blockWindow = 0.3f; // ¸ñµ²ÅĞ¶¨Ê±¼ä
-    [SerializeField] private float blockCooldown = 0.6f; // ¸ñµ²ÄÚÖÃÀäÈ´
-    [SerializeField] private LayerMask attackLayer; // ¹¥»÷ËùÔÚµÄÍ¼²ã
+    [Header("è¾“å…¥è®¾ç½®")]
+    [Tooltip("æ ¼æŒ¡æŒ‰é”®")]
+    [SerializeField] private KeyCode blockKey = KeyCode.Space;
 
-    [Header("×´Ì¬Ö¸Ê¾")]
-    [SerializeField] private bool isBlocking = false;
-    [SerializeField] private bool isOnCooldown = false;
+    [Header("æ ¼æŒ¡è®¾ç½®")]
+    [Tooltip("æ ¼æŒ¡åˆ¤å®šæ—¶é—´")]
+    [SerializeField] private float blockWindow = 0.3f;
+    [Tooltip("æ ¼æŒ¡å†…ç½®å†·å´")]
+    [SerializeField] private float blockCooldown = 0.6f;
+    [Tooltip("æ”»å‡»æ‰€åœ¨çš„å›¾å±‚")]
+    [SerializeField] private LayerMask attackLayer;
 
-    [Header("¸ñµ²Ğ§¹û")]
-    [SerializeField] private GameObject blockEffectPrefab; // ¸ñµ²ÌØĞ§Ô¤ÖÆÌå
-    [SerializeField] private Transform blockEffectSpawnPoint; // ÌØĞ§Éú³ÉÎ»ÖÃ
+    [Header("æ ¼æŒ¡æ•ˆæœ")]
+    [Tooltip("æ ¼æŒ¡ç‰¹æ•ˆé¢„åˆ¶ä½“")]
+    [SerializeField] private GameObject blockEffectPrefab;
+    [Tooltip("ç‰¹æ•ˆç”Ÿæˆä½ç½®")]
+    [SerializeField] private Transform blockEffectSpawnPoint;
+
+    private bool isBlocking = false;
+    private bool isOnCooldown = false;
 
     private float blockTimer = 0f;
     private float cooldownTimer = 0f;
 
-    // ÓÃÓÚ´æ´¢¼ì²âµ½µÄ¹¥»÷ÎïÌå
+    // ç”¨äºå­˜å‚¨æ£€æµ‹åˆ°çš„æ”»å‡»ç‰©ä½“
     private List<GameObject> blockedAttacks = new List<GameObject>();
 
     void Update()
@@ -31,8 +39,8 @@ public class PlayerBlocking : MonoBehaviour
 
     private void HandleBlockInput()
     {
-        // Èç¹û²»ÔÚÀäÈ´ÖĞÇÒ°´ÏÂ¿Õ¸ñ¼ü
-        if (Input.GetKeyDown(KeyCode.Space) && !isOnCooldown)
+        // å¦‚æœä¸åœ¨å†·å´ä¸­ä¸”æŒ‰ä¸‹ç©ºæ ¼é”®
+        if (Input.GetKeyDown(blockKey) && !isOnCooldown)
         {
             StartBlocking();
         }
@@ -43,15 +51,15 @@ public class PlayerBlocking : MonoBehaviour
         isBlocking = true;
         blockTimer = blockWindow;
 
-        // Çå¿ÕÒÑ¸ñµ²µÄÁĞ±í
+        // æ¸…ç©ºå·²æ ¼æŒ¡çš„åˆ—è¡¨
         blockedAttacks.Clear();
 
-        Debug.Log("¿ªÊ¼¸ñµ²");
+        Debug.Log("å¼€å§‹æ ¼æŒ¡");
     }
 
     private void UpdateTimers()
     {
-        // ¸üĞÂ¸ñµ²¼ÆÊ±Æ÷
+        // æ›´æ–°æ ¼æŒ¡è®¡æ—¶å™¨
         if (isBlocking)
         {
             blockTimer -= Time.deltaTime;
@@ -61,7 +69,7 @@ public class PlayerBlocking : MonoBehaviour
             }
         }
 
-        // ¸üĞÂÀäÈ´¼ÆÊ±Æ÷
+        // æ›´æ–°å†·å´è®¡æ—¶å™¨
         if (isOnCooldown)
         {
             cooldownTimer -= Time.deltaTime;
@@ -75,9 +83,9 @@ public class PlayerBlocking : MonoBehaviour
     private void EndBlocking()
     {
         isBlocking = false;
-        Debug.Log("½áÊø¸ñµ²");
+        Debug.Log("ç»“æŸæ ¼æŒ¡");
 
-        // Èç¹ûÃ»ÓĞ¸ñµ²³É¹¦£¬¿ªÊ¼ÀäÈ´
+        // å¦‚æœæ²¡æœ‰æ ¼æŒ¡æˆåŠŸï¼Œå¼€å§‹å†·å´
         if (blockedAttacks.Count == 0 && !isOnCooldown)
         {
             StartCooldown();
@@ -88,10 +96,10 @@ public class PlayerBlocking : MonoBehaviour
     {
         isOnCooldown = true;
         cooldownTimer = blockCooldown;
-        Debug.Log("¸ñµ²ÀäÈ´¿ªÊ¼");
+        Debug.Log("æ ¼æŒ¡å†·å´å¼€å§‹");
     }
 
-    // ´¦Àí¹¥»÷¼ì²â
+    // å¤„ç†æ”»å‡»æ£€æµ‹
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (!isBlocking) return;
@@ -104,21 +112,21 @@ public class PlayerBlocking : MonoBehaviour
 
     private void HandleBlockedAttack(GameObject attackObject)
     {
-        // ±ÜÃâÖØ¸´¸ñµ²Í¬Ò»¸ö¹¥»÷
+        // é¿å…é‡å¤æ ¼æŒ¡åŒä¸€ä¸ªæ”»å‡»
         if (blockedAttacks.Contains(attackObject)) return;
 
-        // Ìí¼Óµ½ÒÑ¸ñµ²ÁĞ±í
+        // æ·»åŠ åˆ°å·²æ ¼æŒ¡åˆ—è¡¨
         blockedAttacks.Add(attackObject);
 
-        // ´¥·¢¸ñµ²³É¹¦ÊÂ¼ş
+        // è§¦å‘æ ¼æŒ¡æˆåŠŸäº‹ä»¶
         OnBlockSuccess(attackObject);
 
-        Debug.Log($"³É¹¦¸ñµ²: {attackObject.name}");
+        Debug.Log($"æˆåŠŸæ ¼æŒ¡: {attackObject.name}");
     }
 
     private void OnBlockSuccess(GameObject attackObject)
     {
-        // ÕâÀï¿ÉÒÔÌí¼Ó¸ñµ²³É¹¦ºóµÄÂß¼­
+        // è¿™é‡Œå¯ä»¥æ·»åŠ æ ¼æŒ¡æˆåŠŸåçš„é€»è¾‘
 
     }
 }

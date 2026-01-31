@@ -13,6 +13,7 @@ GameObject:
   - component: {fileID: 6106787045692689996}
   - component: {fileID: 1639562911807862400}
   - component: {fileID: 4067738696755622310}
+  - component: {fileID: 2818854982081799727}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -179,3 +180,25 @@ MonoBehaviour:
   shortJumpFactor: 0.15
   jumpPreInputFrames: 0.1
   jumpForceFrames: 0.06
+--- !u!114 &2818854982081799727
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582776332695481402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 053acce75908ebd448d325ef73635fbf, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  blockKey: 32
+  blockWindow: 0.3
+  blockCooldown: 0.6
+  attackLayer:
+    serializedVersion: 2
+    m_Bits: 0
+  isBlocking: 0
+  isOnCooldown: 0
+  blockEffectPrefab: {fileID: 0}
+  blockEffectSpawnPoint: {fileID: 0}
