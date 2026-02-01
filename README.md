@@ -1,6 +1,10 @@
 # RoDOT
 
 ## 更新日志
+### 0.1.1
+- 修复了场景加载问题。
+- 调整了部分错误代码。
+
 ### 0.1.0
 - 添加了更新日志。
 - 添加了以下工具：MovLib（更丝滑的移动）；ActSeq（编写动作链）；HierarchicalStateMachine（分层状态机）；InputPreInput（预输入和计时处理）。
