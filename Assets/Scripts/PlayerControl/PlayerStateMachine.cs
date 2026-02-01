@@ -514,8 +514,15 @@ public class PlayerStateMachine : MonoBehaviour
     private IEnumerator FloatAttackRoutine()
     {
         yield return this.Wait(0.4f);
-        _floatAttackCoroutine = null;
-        _stateMachine.TransitionTo("Stand");
+        _floatAttackCoroutine = null; 
+        if (grounded)
+        {
+            _stateMachine.TransitionTo("Stand");
+        }
+        else {
+            _shouldApplyJumpVelocity = false;
+            _stateMachine.TransitionTo("Jump");
+        }
     }
 
     private void ExitFloatAttack()
