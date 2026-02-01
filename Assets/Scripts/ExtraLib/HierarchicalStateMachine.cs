@@ -39,6 +39,7 @@ public class HierarchicalStateMachine : IState
     private string _initialStateName;
 
     public string Name { get; }
+    public string CurrentStateName => _currentState?.Name ?? "";
 
     public HierarchicalStateMachine(string name)
     {

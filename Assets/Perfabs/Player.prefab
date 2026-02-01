@@ -12,8 +12,7 @@ GameObject:
   - component: {fileID: 7227833472783933680}
   - component: {fileID: 6106787045692689996}
   - component: {fileID: 1639562911807862400}
-  - component: {fileID: 4067738696755622310}
-  - component: {fileID: 2818854982081799727}
+  - component: {fileID: 3556975864015512452}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -31,7 +30,7 @@ Transform:
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.6, y: 0.6, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
@@ -148,7 +147,7 @@ Rigidbody2D:
   m_Mass: 1
   m_LinearDrag: 0
   m_AngularDrag: 0.05
-  m_GravityScale: 5
+  m_GravityScale: 0
   m_Material: {fileID: 0}
   m_IncludeLayers:
     serializedVersion: 2
@@ -160,7 +159,7 @@ Rigidbody2D:
   m_SleepingMode: 1
   m_CollisionDetection: 0
   m_Constraints: 0
---- !u!114 &4067738696755622310
+--- !u!114 &3556975864015512452
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -169,36 +168,30 @@ MonoBehaviour:
   m_GameObject: {fileID: 7582776332695481402}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c4b51caab7b55ab4687c649cdb1ec2ac, type: 3}
+  m_Script: {fileID: 11500000, guid: 88ddbcaa3aaa834419d6513c2667f467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveLeftKey: 97
   moveRightKey: 100
+  attackKey: 106
   jumpKey: 107
-  moveSpeed: 5
-  jumpSpeed: 16
-  shortJumpFactor: 0.15
-  jumpPreInputFrames: 0.1
-  jumpForceFrames: 0.06
---- !u!114 &2818854982081799727
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7582776332695481402}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 053acce75908ebd448d325ef73635fbf, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  blockKey: 32
-  blockWindow: 0.3
-  blockCooldown: 0.6
-  attackLayer:
-    serializedVersion: 2
-    m_Bits: 0
-  isBlocking: 0
-  isOnCooldown: 0
-  blockEffectPrefab: {fileID: 0}
-  blockEffectSpawnPoint: {fileID: 0}
+  dashKey: 108
+  blockKey: 105
+  walkSpeed: 3.6
+  dashDistance: 2.4
+  dashDuration: 0.25
+  dashInputBuffer: 0.15
+  dashCooldown: 0.3
+  jumpInputBuffer: 0.18
+  jumpVelocity: 11
+  jumpHoldTime: 0.08
+  shortHopFactor: 0.1
+  gravity: 24
+  blockInputBuffer: 0.15
+  blockDuration: 0.4
+  blockSucceededDuration: 0.6
+  parrySucceededDuration: 0.8
+  parryFailDuration: 0.8
+  hurtKbDistance: 2
+  hurtDuration: 0.2
+  invincibleDuration: 1
