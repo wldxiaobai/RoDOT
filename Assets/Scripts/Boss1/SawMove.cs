@@ -883,17 +883,4 @@ public class SparkAutoReturn : MonoBehaviour
             }
         }
     }
-
-    // 可选：添加碰撞检测，如果碰到特定物体可以提前回收
-    void OnCollisionEnter2D(Collision2D collision)
-    {
-        // 例如：如果碰到地面，可以提前回收
-        if (collision.gameObject.CompareTag("Ground"))
-        {
-            if (bossScript != null)
-            {
-                bossScript.ReturnSparkToPool(gameObject);
-            }
-        }
-    }
 }
