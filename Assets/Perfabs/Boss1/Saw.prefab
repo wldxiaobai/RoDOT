@@ -10,6 +10,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7189124853674787571}
   - component: {fileID: 2834224592599620334}
+  - component: {fileID: 8301052145245147750}
   m_Layer: 0
   m_Name: Saw
   m_TagString: Untagged
@@ -26,7 +27,7 @@ Transform:
   m_GameObject: {fileID: 7824676425771980988}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 7, y: -193, z: 0}
   m_LocalScale: {x: 2, y: 2, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -84,3 +85,84 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!114 &8301052145245147750
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7824676425771980988}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 79e53fdf3f538e64984bbe3bee3a42f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  rotationSpeed: 800
+  pauseBetweenActions: 1
+  pauseBeforeThird: 0.5
+  pauseBeforeFourth: 0.8
+  pauseAfterFourth: 1
+  moveDistance: 5.5
+  acceleration: 20
+  speedCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 0
+      outSlope: 0
+      tangentMode: 34
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  secondMoveDistance: 15
+  secondInitialSpeed: 4
+  secondMaxSpeed: 15
+  secondSpeedCurve:
+    serializedVersion: 2
+    m_Curve: []
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
+  thirdMoveDistance: 4
+  thirdMoveSpeed: 6
+  fourthAcceleration: 10
+  fourthMaxSpeed: 100
+  fifthTeleportDistance: -2
+  fifthReturnSpeed: 6
+  sparkPrefab: {fileID: 3323284929091016142, guid: 2babcca4f48cf0d418ecfa13b183c77a, type: 3}
+  sparkPoolSize: 600
+  sparkLifetime: 3
+  firstActionSparkRadius: 1
+  secondActionSparkRadius: 1
+  fourthActionSparkRadius: 1
+  fourthEndSparkRadius: 1
+  sparkCountOnHit: 200
+  minSparkForce: 3
+  maxSparkForce: 20
+  sparkUpwardBias: 0.3
+  sparksPerFrame: 2
+  secondMinSparkForce: 3
+  secondMaxSparkForce: 8
+  secondSparkUpwardBias: 0.1
+  fourthSparksPerFrame: 6
+  fourthMinSparkForce: 4
+  fourthMaxSparkForce: 10
+  fourthSparkUpwardBias: 0.2
+  fourthEndSparkCount: 300
+  fourthEndMinSparkForce: 6
+  fourthEndMaxSparkForce: 14
+  fourthEndSparkUpwardBias: 0.4
