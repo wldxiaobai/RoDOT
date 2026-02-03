@@ -8,19 +8,35 @@ using static AttackHitInfo;
 public class PlayerStateMachine : MonoBehaviour
 {
     // ==== 配置项: Serializable fields ==== //
-    [Header("动画设置")]
-    [Tooltip("攻击动画参数名")]
-    [SerializeField] private string attackAnimParam = "attack";
+    [Header("动画参数设置")]
+    [Tooltip("攻击动画名")]
+    [SerializeField] private string attackAnim = "attack";
+    [Tooltip("格挡动画名")]
+    [SerializeField] private string blockAnim = "block";
+    [Tooltip("冲刺动画名")]
+    [SerializeField] private string dashAnim = "dash";
+    [Tooltip("防御动画名")]
+    [SerializeField] private string defendAnim = "defend";
+    [Tooltip("反击动画名")]
+    [SerializeField] private string parryAnim = "Counterattack";
     [Tooltip("跳跃动画参数名")]
     [SerializeField] private string jumpAnimParam = "jump";
-    [Tooltip("格挡动画名")]
-    [SerializeField] private string blockAnimParam = "block";
     [Tooltip("行走动画参数名")]
     [SerializeField] private string walkAnimParam = "walking";
     [Tooltip("腾空动画参数名")]
     [SerializeField] private string floatAnimParam = "floating";
-    [Tooltip("冲刺动画名")]
-    [SerializeField] private string dashAnimName = "dash";
+    [Tooltip("中断僵持参数名")]
+    [SerializeField] private string stunBreakParam = "StopDefend";
+
+    [Header("视效设置")]
+    [Tooltip("闪烁特效时长")]
+    [SerializeField] private float flashDuration = 0.2f;
+    [Tooltip("格挡闪烁颜色")]
+    [SerializeField] private Color blockFlashColor = new(0.5f, 1f, 1f, 1f);
+    [Tooltip("受伤闪烁颜色")]
+    [SerializeField] private Color hurtFlashColor = new(1f, 0.5f, 0.5f, 1f);
+    [Tooltip("弹反闪烁提示颜色")]
+    [SerializeField] private Color parryFlashColor = new(1f, 1f, 0.5f, 1f);
 
     [Header("按键绑定")]
     [Tooltip("左移按键")]
@@ -73,14 +89,10 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float blockInputBuffer = 0.15f;
     [Tooltip("格挡判定时长")]
     [SerializeField] private float blockDuration = 0.4f;
-    [Tooltip("闪白特效时长")]
-    [SerializeField] private float flashDuration = 0.2f;
     [Tooltip("格挡成功无敌时间")]
     [SerializeField] private float blockSucceededDuration = 0.6f;
     [Tooltip("弹反成功动作时长")]
     [SerializeField] private float parrySucceededDuration = 0.8f;
-    [Tooltip("弹反失败硬直时长")]
-    [SerializeField] private float parryFailDuration = 0.8f;
 
     [Header("受伤")]
     [Tooltip("受伤击退距离")]
@@ -292,18 +304,10 @@ public class PlayerStateMachine : MonoBehaviour
 
         var standState = new SimpleState(
             StandStateName,
-            enter: () =>
-            {
-                SetSpriteColor(Color.white);
-            },
             stay: StayStand);
 
         var walkState = new SimpleState(
             WalkStateName,
-            enter: () =>
-            {
-                SetSpriteColor(Color.gray);
-            },
             stay: StayWalk);
 
         _groundMovementState = new HierarchicalStateMachine(GroundStateName)
@@ -511,8 +515,7 @@ public class PlayerStateMachine : MonoBehaviour
     // ==== 冲刺逻辑 ==== //
     private void StartDash()
     {
-        SetSpriteColor(Color.blue);
-        _animator.Play(dashAnimName);
+        _animator.Play(dashAnim);
 
         if (_dashCoroutine != null)
         {
@@ -551,7 +554,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         vel = Vector2.zero;
         GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-        SetSpriteColor(Color.red);
+        FlashEffect(flashDuration, hurtFlashColor);
 
         if (_hurtCoroutine != null)
         {
@@ -598,8 +601,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     private void StartAttack()
     {
-        AdjustAnimatorSpeedForClip(attackAnimParam, attackDuration);
-        _animator.Play(attackAnimParam, 0, 0);
+        AdjustAnimatorSpeedForClip(attackAnim, attackDuration);
+        _animator.Play(attackAnim, 0, 0);
         vel = Vector2.zero;
         if (_attackCoroutine != null)
         {
@@ -630,15 +633,13 @@ public class PlayerStateMachine : MonoBehaviour
             StopCoroutine(_attackCoroutine);
             _attackCoroutine = null;
         }
-
-        SetSpriteColor(Color.white);
     }
 
     // ==== 浮空攻击 ==== //
     private void StartFloatAttack()
     {
-        AdjustAnimatorSpeedForClip(attackAnimParam, floatAttackDuration);
-        _animator.Play(attackAnimParam, 0, 0);
+        AdjustAnimatorSpeedForClip(attackAnim, floatAttackDuration);
+        _animator.Play(attackAnim, 0, 0);
         if (_floatAttackCoroutine != null)
         {
             StopCoroutine(_floatAttackCoroutine);
@@ -682,8 +683,6 @@ public class PlayerStateMachine : MonoBehaviour
             StopCoroutine(_floatAttackCoroutine);
             _floatAttackCoroutine = null;
         }
-
-        SetSpriteColor(Color.white);
     }
 
     private void AdjustAnimatorSpeedForClip(string clipName, float desiredDuration)
@@ -838,8 +837,8 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator BlockCheckAction(MonoBehaviour _)
         {
-            AdjustAnimatorSpeedForClip(blockAnimParam, blockDuration);
-            _animator.Play(blockAnimParam);
+            AdjustAnimatorSpeedForClip(blockAnim, blockDuration);
+            _animator.Play(blockAnim);
             tryCatchInfo = true;
             float elapsed = 0f;
             while (elapsed < blockDuration)
@@ -856,7 +855,6 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator WaitForReleaseOrHitAction(MonoBehaviour _)
         {
-            SetSpriteColor(new Color(0.5f, 0.25f, 0f, 1f));
             while (Input.GetKey(blockKey) && !BlockedHitInfo.IsValid)
             {
                 yield return null;
@@ -885,24 +883,13 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
-            StartCoroutine(BlockedEffect(this));
+            FlashEffect(flashDuration, blockFlashColor);
             yield break;
-        }
-
-        IEnumerator BlockedEffect(MonoBehaviour _)
-        {
-            float elapsed = 0f;
-            while (elapsed < flashDuration)
-            {
-                elapsed += Time.deltaTime;
-                _material.SetFloat("_flashFactor", Mathf.Lerp(1f, 0f, elapsed / flashDuration));
-                yield return null;
-            }
         }
 
         IEnumerator WaitForReleaseOrStunAction(MonoBehaviour _)
         {
-            SetSpriteColor(Color.yellow);
+            _animator.Play(defendAnim);
             invincibleTimer.StartTimer(BlockedHitInfo.StunDuration + BlockedHitInfo.ParryWindow + 0.1f);
             tryCatchInfo = false;
             float elapsed = 0f;
@@ -910,6 +897,7 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 if (!Input.GetKey(blockKey))
                 {
+                    _animator.SetTrigger(stunBreakParam);
                     yield break;
                 }
                 elapsed += Time.deltaTime;
@@ -919,21 +907,20 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator ParryFailStunAction(MonoBehaviour _)
         {
-            SetSpriteColor(new Color(0.5f, 0.25f, 0f, 1f));
-            float elapsed = 0f;
-            while (elapsed < parryFailDuration)
-            {
-                elapsed += Time.deltaTime;
-                yield return null;
-            }
+            var KbDir = (Vector2)(transform.position - BlockedHitInfo.Source.transform.position).normalized;
+            var step = KbDir * hurtKbDistance * 0.7f;
+            yield return this.MoveByStep(step, hurtDuration, 0.8f);
+            var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
+            SwitchToGroundSubState(nextState);
             invincibleTimer.StartTimer(0.1f);
         }
 
         IEnumerator ParryCheckAction(MonoBehaviour _)
         {
-            SetSpriteColor(new Color(1f, 0.5f, 0f, 1f));
+            var window = BlockedHitInfo.ParryWindow;
+            FlashEffect(window, parryFlashColor);
             float elapsed = 0f;
-            while (elapsed < BlockedHitInfo.ParryWindow)
+            while (elapsed < window)
             {
                 if (Input.GetKeyUp(blockKey))
                 {
@@ -946,7 +933,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator SuccessfulParryAction(MonoBehaviour _)
         {
-            SetSpriteColor(Color.cyan);
+            _animator.Play(parryAnim);
             invincibleTimer.StartTimer(parrySucceededDuration + 0.4f);
             float elapsed = 0f;
             while (elapsed < parrySucceededDuration)
@@ -956,6 +943,23 @@ public class PlayerStateMachine : MonoBehaviour
             }
         }
 
+    }
+
+    private void FlashEffect(float duration, Color color)
+    {
+        StartCoroutine(FlashEffectCoroutine(duration, color));
+    }
+
+    IEnumerator FlashEffectCoroutine(float duration, Color color)
+    {
+        float elapsed = 0f;
+        _material.SetColor("_flashColor", color);
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            _material.SetFloat("_flashFactor", Mathf.Lerp(1f, 0f, elapsed / duration));
+            yield return null;
+        }
     }
 
     // ==== 碰撞与击中判断 ==== //
@@ -1040,12 +1044,6 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     // ==== 视觉与状态工具 ==== //
-    // 用变色暂时代替动画效果。
-    private void SetSpriteColor(Color color)
-    {
-        // 弃用
-    }
-
     private void ApplySpriteColor()
     {
         if (_spriteRenderer == null)
@@ -1053,7 +1051,7 @@ public class PlayerStateMachine : MonoBehaviour
             return;
         }
 
-        var alpha = _invincibleAlphaActive ? 0.7f : 1f;
+        var alpha = 1f;
         _spriteRenderer.color = new Color(_spriteBaseColor.r, _spriteBaseColor.g, _spriteBaseColor.b, alpha);
     }
 

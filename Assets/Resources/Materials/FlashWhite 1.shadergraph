@@ -795,7 +795,7 @@
     "m_Type": "UnityEditor.ShaderGraph.Vector4MaterialSlot",
     "m_ObjectId": "5713c75ff6954b5c8125d89c7528f9d0",
     "m_Id": 0,
-    "m_DisplayName": "white",
+    "m_DisplayName": "_flashColor",
     "m_SlotType": 1,
     "m_Hidden": false,
     "m_ShaderOutputName": "Out",
@@ -828,10 +828,10 @@
     "m_Guid": {
         "m_GuidSerialized": "64dee5e0-a053-46f3-96c8-5be4ad7eb461"
     },
-    "m_Name": "white",
+    "m_Name": "_flashColor",
     "m_DefaultRefNameVersion": 1,
-    "m_RefNameGeneratedByDisplayName": "white",
-    "m_DefaultReferenceName": "_white",
+    "m_RefNameGeneratedByDisplayName": "_flashColor",
+    "m_DefaultReferenceName": "_flashColor",
     "m_OverrideReferenceName": "",
     "m_GeneratePropertyBlock": true,
     "m_UseCustomSlotLabel": false,

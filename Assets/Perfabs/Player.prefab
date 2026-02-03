@@ -172,12 +172,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88ddbcaa3aaa834419d6513c2667f467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackAnimParam: attack
+  attackAnim: attack
+  blockAnim: block
+  dashAnim: dash
+  defendAnim: defend
+  parryAnim: Counterattack
   jumpAnimParam: jump
-  blockAnimParam: block
   walkAnimParam: walking
   floatAnimParam: floating
-  dashAnimName: dash
+  stunBreakParam: StopDefend
+  flashDuration: 0.2
+  blockFlashColor: {r: 0.5, g: 1, b: 1, a: 1}
+  hurtFlashColor: {r: 1, g: 0.5, b: 0.5, a: 1}
+  parryFlashColor: {r: 1, g: 0.814631, b: 0.5019608, a: 1}
   moveLeftKey: 97
   moveRightKey: 100
   attackKey: 106
@@ -201,7 +208,6 @@ MonoBehaviour:
   blockDuration: 0.2
   blockSucceededDuration: 0
   parrySucceededDuration: 0.8
-  parryFailDuration: 0.8
   hurtKbDistance: 2
   hurtDuration: 0.2
   invincibleDuration: 1

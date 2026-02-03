@@ -3913,9 +3913,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Damage: 5
   Grade: 0
-  AttackPosition: 0
-  StunDuration: 0.5
-  ParryWindow: 0.2
+  AttackPosition: 2
+  StunDuration: 1
+  ParryWindow: 0.4
   used: 0
 --- !u!114 &1333555945
 MonoBehaviour:

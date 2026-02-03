@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: FlashBlue
+  m_Name: FlashMaterial
   m_Shader: {fileID: -6465566751694194690, guid: 7197107574b62dc46866a76181528a0b, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
@@ -67,7 +67,8 @@ Material:
     - _Flip: {r: 1, g: 1, b: 1, a: 1}
     - _RendererColor: {r: 1, g: 1, b: 1, a: 1}
     - _White: {r: 1, g: 1, b: 1, a: 0}
-    - _white: {r: 0.46855342, g: 0.9922169, b: 1, a: 0}
+    - _flashColor: {r: 1, g: 1, b: 1, a: 0}
+    - _white: {r: 0.5019608, g: 1, b: 1, a: 0}
   m_BuildTextureStacks: []
 --- !u!114 &7742078680462333537
 MonoBehaviour:
