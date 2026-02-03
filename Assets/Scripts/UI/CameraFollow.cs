@@ -12,6 +12,12 @@ public class CameraFollow : MonoBehaviour
     [SerializeField] private float maxSpeed = 20f; // 最大跟随速度
     [SerializeField] private bool useFixedUpdate = true; // 是否使用FixedUpdate
 
+    [Header("摄像头比例")]
+    [SerializeField] private bool useFixedAspectRatio = true; // 是否使用固定宽高比
+    [SerializeField] private float aspectWidth = 4f; // 宽高比宽度
+    [SerializeField] private float aspectHeight = 3f; // 宽高比高度
+    [SerializeField] private bool forceResolutionInEditor = false; // 是否在编辑器中强制分辨率
+
     [Header("边界设置")]
     [SerializeField] private bool useBoundaries = true; // 是否启用边界限制
 
@@ -168,6 +174,66 @@ public class CameraFollow : MonoBehaviour
             transform.position = startPosition;
             transitionStartPosition = startPosition;
         }
+
+        // 设置摄像头比例为4:3
+        SetupCameraAspectRatio();
+    }
+
+    // 设置摄像头宽高比
+    void SetupCameraAspectRatio()
+    {
+        if (!useFixedAspectRatio) return;
+
+        // 获取摄像头组件
+        Camera cam = GetComponent<Camera>();
+        if (cam == null)
+        {
+            Debug.LogError("摄像头组件未找到！");
+            return;
+        }
+
+        // 计算目标宽高比
+        float targetAspect = aspectWidth / aspectHeight;
+
+        // 获取当前视口的宽高比
+        float windowAspect = (float)Screen.width / (float)Screen.height;
+
+        // 计算缩放高度（letterbox）
+        float scaleHeight = windowAspect / targetAspect;
+
+        // 创建矩形用于设置摄像头视口
+        Rect rect = cam.rect;
+
+        if (scaleHeight < 1.0f)
+        {
+            // 如果窗口高度大于目标高度，添加黑边（letterbox）
+            rect.width = 1.0f;
+            rect.height = scaleHeight;
+            rect.x = 0;
+            rect.y = (1.0f - scaleHeight) / 2.0f;
+        }
+        else
+        {
+            // 如果窗口宽度大于目标宽度，添加黑边（pillarbox）
+            float scaleWidth = 1.0f / scaleHeight;
+            rect.width = scaleWidth;
+            rect.height = 1.0f;
+            rect.x = (1.0f - scaleWidth) / 2.0f;
+            rect.y = 0;
+        }
+
+        cam.rect = rect;
+
+        Debug.Log($"摄像头比例设置为 {aspectWidth}:{aspectHeight} (目标比例: {targetAspect:F2}, 窗口比例: {windowAspect:F2})");
+
+        // 如果在编辑器中，并且需要强制分辨率
+#if UNITY_EDITOR
+        if (forceResolutionInEditor && !Application.isPlaying)
+        {
+            // 这里只是提示，实际分辨率设置需要在播放器中
+            Debug.Log("在编辑器中，建议将游戏窗口设置为4:3比例以获得最佳效果");
+        }
+#endif
     }
 
     void FixedUpdate()
@@ -597,7 +663,15 @@ public class CameraFollow : MonoBehaviour
 
         info += $"边界数量: {boundaries.Length}\n";
 
-        GUI.Label(new Rect(10, 10, 350, 250), info);
+        // 显示摄像头比例信息
+        Camera cam = GetComponent<Camera>();
+        if (cam != null)
+        {
+            info += $"摄像头比例: {(useFixedAspectRatio ? $"{aspectWidth}:{aspectHeight}" : "自适应")}\n";
+            info += $"视口矩形: {cam.rect}\n";
+        }
+
+        GUI.Label(new Rect(10, 10, 350, 280), info);
     }
 
     // 属性访问器
@@ -647,5 +721,35 @@ public class CameraFollow : MonoBehaviour
     {
         get { return boundaries; }
         set { boundaries = value; }
+    }
+
+    public bool UseFixedAspectRatio
+    {
+        get { return useFixedAspectRatio; }
+        set
+        {
+            useFixedAspectRatio = value;
+            if (value) SetupCameraAspectRatio();
+        }
+    }
+
+    public float AspectWidth
+    {
+        get { return aspectWidth; }
+        set
+        {
+            aspectWidth = Mathf.Max(1f, value);
+            if (useFixedAspectRatio) SetupCameraAspectRatio();
+        }
+    }
+
+    public float AspectHeight
+    {
+        get { return aspectHeight; }
+        set
+        {
+            aspectHeight = Mathf.Max(1f, value);
+            if (useFixedAspectRatio) SetupCameraAspectRatio();
+        }
     }
 }

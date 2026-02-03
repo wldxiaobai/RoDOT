@@ -762,10 +762,14 @@ MonoBehaviour:
   smoothTime: 0.2
   maxSpeed: 20
   useFixedUpdate: 1
+  useFixedAspectRatio: 1
+  aspectWidth: 16
+  aspectHeight: 9
+  forceResolutionInEditor: 0
   useBoundaries: 1
   boundaries:
   - boundaryName: 1
-    minX: 1.3
+    minX: -1.5
     maxX: 50
     minY: -6.3
     maxY: 5
