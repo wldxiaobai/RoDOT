@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using UnityEditor;
 using UnityEngine;
 using static AttackHitInfo;
@@ -126,6 +127,7 @@ public class PlayerStateMachine : MonoBehaviour
     private Coroutine _attackCoroutine;
     private Coroutine _floatAttackCoroutine;
     private Coroutine _hurtCoroutine;
+    private Coroutine _parryFlashCoroutine;
     private ActSeq blockActionChain = new();
     private float _defaultAnimatorSpeed;
     private bool _pendingFloatAttack;
@@ -555,6 +557,7 @@ public class PlayerStateMachine : MonoBehaviour
         vel = Vector2.zero;
         GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         FlashEffect(flashDuration, hurtFlashColor);
+        _animator.SetTrigger(stunBreakParam);
 
         if (_hurtCoroutine != null)
         {
@@ -685,51 +688,6 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
-    private void AdjustAnimatorSpeedForClip(string clipName, float desiredDuration)
-    {
-        if (_animator == null)
-        {
-            return;
-        }
-
-        var clip = GetAnimationClipByName(clipName);
-        if (clip == null || desiredDuration <= 0f)
-        {
-            _animator.speed = _defaultAnimatorSpeed;
-            return;
-        }
-
-        _animator.speed = clip.length / desiredDuration;
-    }
-
-    private AnimationClip GetAnimationClipByName(string clipName)
-    {
-        if (_animator == null || _animator.runtimeAnimatorController == null)
-        {
-            return null;
-        }
-
-        foreach (var clip in _animator.runtimeAnimatorController.animationClips)
-        {
-            if (clip.name == clipName)
-            {
-                return clip;
-            }
-        }
-
-        return null;
-    }
-
-    private void ResetAnimatorSpeed()
-    {
-        if (_animator == null)
-        {
-            return;
-        }
-
-        _animator.speed = _defaultAnimatorSpeed;
-    }
-
     // ==== 格挡流程 ==== //
     private void StartBlock()
     {
@@ -843,6 +801,10 @@ public class PlayerStateMachine : MonoBehaviour
             float elapsed = 0f;
             while (elapsed < blockDuration)
             {
+                if (!Input.GetKey(blockKey))
+                {
+                    _animator.SetTrigger(stunBreakParam);
+                }
                 if (BlockedHitInfo.IsValid)
                 {
                     invincibleTimer.StartTimer(blockSucceededDuration);
@@ -851,6 +813,7 @@ public class PlayerStateMachine : MonoBehaviour
                 elapsed += Time.deltaTime;
                 yield return null;
             }
+            ResetAnimatorSpeed();
         }
 
         IEnumerator WaitForReleaseOrHitAction(MonoBehaviour _)
@@ -859,6 +822,7 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 yield return null;
             }
+            _animator.SetTrigger(stunBreakParam);
             tryCatchInfo = false;
         }
 
@@ -883,6 +847,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
+            _animator.SetTrigger(stunBreakParam);
             FlashEffect(flashDuration, blockFlashColor);
             yield break;
         }
@@ -933,33 +898,19 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator SuccessfulParryAction(MonoBehaviour _)
         {
+            AdjustAnimatorSpeedForClip(parryAnim, parrySucceededDuration);
             _animator.Play(parryAnim);
             invincibleTimer.StartTimer(parrySucceededDuration + 0.4f);
+            StopFlashEffect();
             float elapsed = 0f;
             while (elapsed < parrySucceededDuration)
             {
                 elapsed += Time.deltaTime;
                 yield return null;
             }
+            ResetAnimatorSpeed();
         }
 
-    }
-
-    private void FlashEffect(float duration, Color color)
-    {
-        StartCoroutine(FlashEffectCoroutine(duration, color));
-    }
-
-    IEnumerator FlashEffectCoroutine(float duration, Color color)
-    {
-        float elapsed = 0f;
-        _material.SetColor("_flashColor", color);
-        while (elapsed < duration)
-        {
-            elapsed += Time.deltaTime;
-            _material.SetFloat("_flashFactor", Mathf.Lerp(1f, 0f, elapsed / duration));
-            yield return null;
-        }
     }
 
     // ==== 碰撞与击中判断 ==== //
@@ -984,13 +935,19 @@ public class PlayerStateMachine : MonoBehaviour
         }
     }
 
+    private bool HitOnDirection(HitInfo info)
+    {
+        // 判断攻击来源是否在面向方向上
+        return info.IsValid && (info.Source.transform.position - transform.position).x * _facingDirection > 0f;
+    }
+
     private void HandleIncomingAttack(GameObject other)
     {
         if (other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
             if (hitInfo.used) return;
             var incoming = hitInfo.GetHitInfo();
-            if (tryCatchInfo)
+            if (tryCatchInfo && HitOnDirection(incoming))
             {
                 Debug.Log("格挡状态下收到攻击");
                 BlockedHitInfo = incoming;
@@ -1053,6 +1010,80 @@ public class PlayerStateMachine : MonoBehaviour
 
         var alpha = 1f;
         _spriteRenderer.color = new Color(_spriteBaseColor.r, _spriteBaseColor.g, _spriteBaseColor.b, alpha);
+    }
+
+    // 动画速度调整工具
+    private void AdjustAnimatorSpeedForClip(string clipName, float desiredDuration)
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        var clip = GetAnimationClipByName(clipName);
+        if (clip == null || desiredDuration <= 0f)
+        {
+            _animator.speed = _defaultAnimatorSpeed;
+            return;
+        }
+
+        _animator.speed = clip.length / desiredDuration;
+    }
+
+    private AnimationClip GetAnimationClipByName(string clipName)
+    {
+        if (_animator == null || _animator.runtimeAnimatorController == null)
+        {
+            return null;
+        }
+
+        foreach (var clip in _animator.runtimeAnimatorController.animationClips)
+        {
+            if (clip.name == clipName)
+            {
+                return clip;
+            }
+        }
+
+        return null;
+    }
+
+    private void ResetAnimatorSpeed()
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        _animator.speed = _defaultAnimatorSpeed;
+    }
+
+    // 闪烁特效
+    private void FlashEffect(float duration, Color color)
+    {
+        _parryFlashCoroutine = StartCoroutine(FlashEffectCoroutine(duration, color));
+    }
+
+    IEnumerator FlashEffectCoroutine(float duration, Color color)
+    {
+        float elapsed = 0f;
+        _material.SetColor("_flashColor", color);
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            _material.SetFloat("_flashFactor", Mathf.Lerp(1f, 0f, elapsed / duration));
+            yield return null;
+        }
+    }
+
+    private void StopFlashEffect()
+    {
+        if (_parryFlashCoroutine != null)
+        {
+            StopCoroutine(_parryFlashCoroutine);
+            _parryFlashCoroutine = null;
+        }
+        _material.SetFloat("_flashFactor", 0f);
     }
 
     // 处理受伤逻辑。

@@ -3912,7 +3912,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   Damage: 5
-  Grade: 0
+  Grade: 1
   AttackPosition: 2
   StunDuration: 1
   ParryWindow: 0.4

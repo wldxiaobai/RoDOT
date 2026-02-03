@@ -205,9 +205,9 @@ MonoBehaviour:
   attackDuration: 0.2
   floatAttackDuration: 0.2
   blockInputBuffer: 0.15
-  blockDuration: 0.2
-  blockSucceededDuration: 0
-  parrySucceededDuration: 0.8
+  blockDuration: 0.3
+  blockSucceededDuration: 0.2
+  parrySucceededDuration: 0.4
   hurtKbDistance: 2
   hurtDuration: 0.2
   invincibleDuration: 1
