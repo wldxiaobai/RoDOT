@@ -56,7 +56,7 @@ SpriteRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  - {fileID: 2100000, guid: c8ca16eb6f370c04d8f9e4e362c14885, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -198,7 +198,7 @@ MonoBehaviour:
   attackDuration: 0.2
   floatAttackDuration: 0.2
   blockInputBuffer: 0.15
-  blockDuration: 0.4
+  blockDuration: 0.2
   blockSucceededDuration: 0
   parrySucceededDuration: 0.8
   parryFailDuration: 0.8

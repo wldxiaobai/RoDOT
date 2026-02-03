@@ -13,7 +13,7 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private string attackAnimParam = "attack";
     [Tooltip("跳跃动画参数名")]
     [SerializeField] private string jumpAnimParam = "jump";
-    [Tooltip("格挡动画参数名")]
+    [Tooltip("格挡动画名")]
     [SerializeField] private string blockAnimParam = "block";
     [Tooltip("行走动画参数名")]
     [SerializeField] private string walkAnimParam = "walking";
@@ -73,7 +73,9 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float blockInputBuffer = 0.15f;
     [Tooltip("格挡判定时长")]
     [SerializeField] private float blockDuration = 0.4f;
-    [Tooltip("格挡成功动作时长")]
+    [Tooltip("闪白特效时长")]
+    [SerializeField] private float flashDuration = 0.2f;
+    [Tooltip("格挡成功无敌时间")]
     [SerializeField] private float blockSucceededDuration = 0.6f;
     [Tooltip("弹反成功动作时长")]
     [SerializeField] private float parrySucceededDuration = 0.8f;
@@ -116,26 +118,6 @@ public class PlayerStateMachine : MonoBehaviour
     private float _defaultAnimatorSpeed;
     private bool _pendingFloatAttack;
 
-    struct HitInfo
-    {
-        public bool IsValid => Source != null && !used;
-        public float Damage;
-        public AttackGrade Grade;
-        public float StunDuration;
-        public float ParryWindow;
-        public GameObject Source;
-        public bool used;
-
-        public void Clear()
-        {
-            Damage = 0f;
-            Grade = AttackGrade.Light;
-            StunDuration = 0f;
-            ParryWindow = 0f;
-            Source = null;
-            used = false;
-        }
-    }
     private bool tryCatchInfo = false;
     private HitInfo incomingHitInfo = new();
     private HitInfo BlockedHitInfo = new();
@@ -154,6 +136,7 @@ public class PlayerStateMachine : MonoBehaviour
     }
     
     private SpriteRenderer _spriteRenderer;
+    private Material _material;
     private Color _spriteBaseColor = Color.white;
     private bool _invincibleAlphaActive;
 
@@ -176,6 +159,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         _animator = GetComponent<Animator>();
         _spriteRenderer = GetComponent<SpriteRenderer>();
+        _material = _spriteRenderer.material;
         _defaultAnimatorSpeed = _animator != null ? _animator.speed : 1f;
         BuildStateMachine();
         BuildBlockActionChain();
@@ -212,28 +196,30 @@ public class PlayerStateMachine : MonoBehaviour
     {
         float horizontal = 0f;
         var activeState = ActiveState;
-
-        if (Input.GetKey(moveLeftKey))
+        if(activeState != "Block")
         {
-            horizontal -= 1f;
-        }
-
-        if (Input.GetKey(moveRightKey))
-        {
-            horizontal += 1f;
-        }
-
-        if (activeState != "FloatAttack" && activeState != "Attack")
-        {
-            if (horizontal < 0f)
+            if (Input.GetKey(moveLeftKey))
             {
-                _facingDirection = -1f;
+                horizontal -= 1f;
             }
-            else if (horizontal > 0f)
+
+            if (Input.GetKey(moveRightKey))
             {
-                _facingDirection = 1f;
+                horizontal += 1f;
             }
-            _spriteRenderer.flipX = _facingDirection > 0f;
+
+            if (activeState != "FloatAttack" && activeState != "Attack")
+            {
+                if (horizontal < 0f)
+                {
+                    _facingDirection = -1f;
+                }
+                else if (horizontal > 0f)
+                {
+                    _facingDirection = 1f;
+                }
+                _spriteRenderer.flipX = _facingDirection > 0f;
+            }
         }
 
         _movementInput = horizontal != 0f ? new Vector2(horizontal, 0f) : Vector2.zero;
@@ -767,7 +753,6 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if(blockActionChain.IsPlaying)
             blockActionChain.Stop();
-        SetSpriteColor(Color.white);
         BlockedHitInfo.Clear();
     }
 
@@ -807,7 +792,6 @@ public class PlayerStateMachine : MonoBehaviour
         // 是重攻击？
         var HeavyHitBranch = blockActionChain.CreateConditionalNode(
             _ => BlockedHitInfo.Grade == AttackGrade.Heavy);
-
 
         // 格挡成功动作
         var SuccessfulBlock = blockActionChain.CreateActionNode(SuccessfulBlockAction);
@@ -854,14 +838,16 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator BlockCheckAction(MonoBehaviour _)
         {
-            _animator.SetTrigger(blockAnimParam);
+            AdjustAnimatorSpeedForClip(blockAnimParam, blockDuration);
+            _animator.Play(blockAnimParam);
             tryCatchInfo = true;
             float elapsed = 0f;
             while (elapsed < blockDuration)
             {
                 if (BlockedHitInfo.IsValid)
                 {
-                    yield break;
+                    invincibleTimer.StartTimer(blockSucceededDuration);
+                    tryCatchInfo = false;
                 }
                 elapsed += Time.deltaTime;
                 yield return null;
@@ -899,13 +885,17 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
-            SetSpriteColor(Color.cyan);
-            invincibleTimer.StartTimer(blockSucceededDuration + 0.4f);
-            tryCatchInfo = false;
+            StartCoroutine(BlockedEffect(this));
+            yield break;
+        }
+
+        IEnumerator BlockedEffect(MonoBehaviour _)
+        {
             float elapsed = 0f;
-            while (elapsed < blockSucceededDuration)
+            while (elapsed < flashDuration)
             {
                 elapsed += Time.deltaTime;
+                _material.SetFloat("_flashFactor", Mathf.Lerp(1f, 0f, elapsed / flashDuration));
                 yield return null;
             }
         }
@@ -995,15 +985,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
             if (hitInfo.used) return;
-            var incoming = new HitInfo
-            {
-                Damage = hitInfo.Damage,
-                Grade = hitInfo.Grade,
-                StunDuration = hitInfo.StunDuration,
-                ParryWindow = hitInfo.ParryWindow,
-                Source = hitInfo.Source,
-                used = hitInfo.used
-            };
+            var incoming = hitInfo.GetHitInfo();
             if (tryCatchInfo)
             {
                 Debug.Log("格挡状态下收到攻击");
