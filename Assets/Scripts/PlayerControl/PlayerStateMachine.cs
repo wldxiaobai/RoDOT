@@ -258,7 +258,8 @@ public class PlayerStateMachine : MonoBehaviour
         }
 
         if (InputPreInput.GetKeyDown(jumpKey, jumpInputBuffer) &&
-            (activeState == StandStateName || activeState == WalkStateName))
+            (activeState == StandStateName || activeState == WalkStateName) &&
+            grounded)
         {
             InputPreInput.ConsumeBufferedKeyDown(jumpKey);
             SwitchToAirSubState(JumpSubStateName);
@@ -588,6 +589,7 @@ public class PlayerStateMachine : MonoBehaviour
             StopCoroutine(_hurtCoroutine);
             _hurtCoroutine = null;
         }
+        _animator.ResetTrigger(stunBreakParam);
     }
 
     // ==== ¹¥»÷Âß¼­ ==== //
@@ -872,6 +874,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator ParryFailStunAction(MonoBehaviour _)
         {
+            _animator.SetTrigger(stunBreakParam);
             var KbDir = (Vector2)(transform.position - BlockedHitInfo.Source.transform.position).normalized;
             var step = KbDir * hurtKbDistance * 0.7f;
             yield return this.MoveByStep(step, hurtDuration, 0.8f);
@@ -945,7 +948,7 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
-            if (hitInfo.used) return;
+            if (hitInfo.used || hitInfo.AttackPosition == Position.Friendly) return;
             var incoming = hitInfo.GetHitInfo();
             if (tryCatchInfo && HitOnDirection(incoming))
             {
