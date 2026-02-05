@@ -71,19 +71,16 @@ public class SummonerBoss : MonoBehaviour
 
     private IEnumerator ExecuteAction1()
     {
-        Debug.Log("Boss执行动作1：召唤六把飞剑");
         yield return StartCoroutine(SummonSwords(3, 1.5f));
     }
 
     private IEnumerator ExecuteAction2()
     {
-        Debug.Log("Boss执行动作2：召唤四把飞剑");
         yield return StartCoroutine(SummonSwords(2, 0.6f));
     }
 
     private IEnumerator ExecuteAction3()
     {
-        Debug.Log("Boss执行动作3：召唤石碑（暂未实现）");
         // 石碑逻辑暂时占位
         yield return new WaitForSeconds(3f);
     }
@@ -132,7 +129,6 @@ public class SummonerBoss : MonoBehaviour
         if (!isActive) return;
 
         currentHealth -= damage;
-        Debug.Log($"Boss受到{damage}点伤害，剩余血量：{currentHealth}");
 
         if (currentHealth <= 0)
         {
@@ -150,7 +146,6 @@ public class SummonerBoss : MonoBehaviour
             actionRoutine = null;
         }
 
-        Debug.Log("Boss被击败！");
         gameObject.SetActive(false);
     }
 }

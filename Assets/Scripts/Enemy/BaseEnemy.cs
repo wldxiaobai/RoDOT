@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using static AttackHitInfo;
 
 public class BaseEnemy : MonoBehaviour
 {
@@ -400,12 +401,20 @@ public class BaseEnemy : MonoBehaviour
         return BlankBehaviourName;
     }
 
-    public void TakeDamage(int damage)
+    private HitInfo incomingHitInfo;
+
+    private void HandleIncomingAttack(GameObject other)
     {
-        currentHP -= damage;
-        if (currentHP <= 0)
+        if(other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
-            ForceDeath();
+            if (hitInfo.used || hitInfo.AttackPosition == Position.Hostile) return;
+            var incoming = hitInfo.GetHitInfo();
+
         }
+    }
+
+    public void OnCollisionEnter2D(Collision2D collision)
+    {
+        
     }
 }
