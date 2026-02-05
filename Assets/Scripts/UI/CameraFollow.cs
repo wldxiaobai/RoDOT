@@ -160,10 +160,10 @@ public class CameraFollow : MonoBehaviour
         {
             Vector3 startPosition = target.position + offset;
 
-            // 寻找最近的边界（使用边缘距离）
+            // 寻找最近的边界（使用X轴距离）
             if (useBoundaries && autoSwitchToNearest)
             {
-                int nearestIndex = FindNearestBoundaryIndexByEdgeDistance(target.position);
+                int nearestIndex = FindNearestBoundaryIndexByXDistance(target.position);
                 if (nearestIndex >= 0)
                 {
                     currentBoundaryIndex = nearestIndex;
@@ -264,10 +264,10 @@ public class CameraFollow : MonoBehaviour
         // 如果需要，应用边界限制
         if (useBoundaries)
         {
-            // 自动寻找最近边界（基于边缘距离）
+            // 自动寻找最近边界（基于X轴距离）
             if (autoSwitchToNearest)
             {
-                TrySwitchToNearestBoundaryByEdgeDistance(target.position);
+                TrySwitchToNearestBoundaryByXDistance(target.position);
             }
 
             // 应用当前边界的限制
@@ -312,8 +312,8 @@ public class CameraFollow : MonoBehaviour
         );
     }
 
-    // 根据边缘距离寻找最近边界的索引
-    int FindNearestBoundaryIndexByEdgeDistance(Vector3 position)
+    // 根据X轴距离寻找最近边界的索引
+    int FindNearestBoundaryIndexByXDistance(Vector3 position)
     {
         int nearestIndex = -1;
         float nearestDistance = float.MaxValue;
@@ -322,7 +322,25 @@ public class CameraFollow : MonoBehaviour
         {
             if (!boundaries[i].isActive || !boundaries[i].useForNearestSearch) continue;
 
-            float distance = boundaries[i].DistanceToEdge(position);
+            // 只计算X轴距离，忽略Y轴
+            float distance = 0f;
+
+            if (position.x < boundaries[i].minX)
+            {
+                // 在左边界的左侧
+                distance = Mathf.Abs(position.x - boundaries[i].minX);
+            }
+            else if (position.x > boundaries[i].maxX)
+            {
+                // 在右边界的右侧
+                distance = Mathf.Abs(position.x - boundaries[i].maxX);
+            }
+            else
+            {
+                // 在X轴范围内，距离为0
+                distance = 0f;
+            }
+
             if (distance < nearestDistance)
             {
                 nearestDistance = distance;
@@ -333,11 +351,11 @@ public class CameraFollow : MonoBehaviour
         return nearestIndex;
     }
 
-    // 尝试切换到最近边界（基于边缘距离）
-    void TrySwitchToNearestBoundaryByEdgeDistance(Vector3 playerPosition)
+    // 尝试切换到最近边界（基于X轴距离）
+    void TrySwitchToNearestBoundaryByXDistance(Vector3 playerPosition)
     {
         // 寻找最近边界
-        int nearestIndex = FindNearestBoundaryIndexByEdgeDistance(playerPosition);
+        int nearestIndex = FindNearestBoundaryIndexByXDistance(playerPosition);
         if (nearestIndex < 0 || nearestIndex == currentBoundaryIndex) return;
 
         // 切换到最近边界（无冷却时间，无阈值，直接切换）
@@ -377,12 +395,12 @@ public class CameraFollow : MonoBehaviour
         Debug.LogError($"未找到名称为 '{boundaryName}' 的边界区域！");
     }
 
-    // 强制切换到最近的边界（基于边缘距离）
+    // 强制切换到最近的边界（基于X轴距离）
     public void ForceSwitchToNearest()
     {
         if (target == null) return;
 
-        int nearestIndex = FindNearestBoundaryIndexByEdgeDistance(target.position);
+        int nearestIndex = FindNearestBoundaryIndexByXDistance(target.position);
         if (nearestIndex >= 0)
         {
             SwitchToBoundary(nearestIndex);
@@ -408,13 +426,26 @@ public class CameraFollow : MonoBehaviour
         return boundaries[currentBoundaryIndex].Contains(target.position);
     }
 
-    // 获取目标到当前边界的边缘距离
-    public float GetDistanceToCurrentBoundaryEdge()
+    // 获取目标到当前边界的X轴距离
+    public float GetXDistanceToCurrentBoundary()
     {
         if (target == null || currentBoundaryIndex < 0) return float.MaxValue;
         if (currentBoundaryIndex >= boundaries.Length) return float.MaxValue;
 
-        return boundaries[currentBoundaryIndex].DistanceToEdge(target.position);
+        CameraBoundary boundary = boundaries[currentBoundaryIndex];
+
+        if (target.position.x < boundary.minX)
+        {
+            return Mathf.Abs(target.position.x - boundary.minX);
+        }
+        else if (target.position.x > boundary.maxX)
+        {
+            return Mathf.Abs(target.position.x - boundary.maxX);
+        }
+        else
+        {
+            return 0f;
+        }
     }
 
     // 激活一个边界
@@ -578,20 +609,35 @@ public class CameraFollow : MonoBehaviour
 #endif
         }
 
-        // 绘制当前边界到目标的距离（仅在运行时）
+        // 绘制当前边界到目标的X轴距离（仅在运行时）
         if (Application.isPlaying && target != null && currentBoundaryIndex >= 0 && currentBoundaryIndex < boundaries.Length && isSelected)
         {
             CameraBoundary currentBoundary = boundaries[currentBoundaryIndex];
-            Vector3 closestEdgePoint = currentBoundary.GetClosestEdgePoint(target.position);
+
+            // 计算X轴上的最近点
+            Vector3 xClosestPoint;
+            if (target.position.x < currentBoundary.minX)
+            {
+                xClosestPoint = new Vector3(currentBoundary.minX, target.position.y, 0);
+            }
+            else if (target.position.x > currentBoundary.maxX)
+            {
+                xClosestPoint = new Vector3(currentBoundary.maxX, target.position.y, 0);
+            }
+            else
+            {
+                xClosestPoint = target.position;
+            }
 
             Gizmos.color = Color.red;
-            Gizmos.DrawLine(target.position, closestEdgePoint);
-            Gizmos.DrawWireSphere(closestEdgePoint, 0.3f);
+            Gizmos.DrawLine(target.position, xClosestPoint);
+            Gizmos.DrawWireSphere(xClosestPoint, 0.3f);
 
 #if UNITY_EDITOR
+            float xDistance = GetXDistanceToCurrentBoundary();
             UnityEditor.Handles.Label(
-                (target.position + closestEdgePoint) / 2f,
-                $"距离: {currentBoundary.DistanceToEdge(target.position):F1}",
+                (target.position + xClosestPoint) / 2f,
+                $"X轴距离: {xDistance:F1}",
                 new GUIStyle() { normal = new GUIStyleState() { textColor = Color.red } }
             );
 #endif
@@ -650,14 +696,14 @@ public class CameraFollow : MonoBehaviour
         if (target != null && currentBoundaryIndex >= 0)
         {
             info += $"目标在边界内: {IsTargetInCurrentBoundary()}\n";
-            info += $"到边界边缘距离: {GetDistanceToCurrentBoundaryEdge():F2}\n";
+            info += $"到边界X轴距离: {GetXDistanceToCurrentBoundary():F2}\n";
 
             // 显示最近边界信息
-            int nearestIndex = FindNearestBoundaryIndexByEdgeDistance(target.position);
+            int nearestIndex = FindNearestBoundaryIndexByXDistance(target.position);
             if (nearestIndex >= 0 && nearestIndex != currentBoundaryIndex)
             {
-                float nearestDistance = boundaries[nearestIndex].DistanceToEdge(target.position);
-                info += $"最近边界: {boundaries[nearestIndex].boundaryName} (距离: {nearestDistance:F2})\n";
+                float nearestDistance = GetXDistanceToBoundary(target.position, nearestIndex);
+                info += $"最近边界: {boundaries[nearestIndex].boundaryName} (X轴距离: {nearestDistance:F2})\n";
             }
         }
 
@@ -672,6 +718,27 @@ public class CameraFollow : MonoBehaviour
         }
 
         GUI.Label(new Rect(10, 10, 350, 280), info);
+    }
+
+    // 辅助方法：获取目标到指定边界的X轴距离
+    private float GetXDistanceToBoundary(Vector3 position, int boundaryIndex)
+    {
+        if (boundaryIndex < 0 || boundaryIndex >= boundaries.Length) return float.MaxValue;
+
+        CameraBoundary boundary = boundaries[boundaryIndex];
+
+        if (position.x < boundary.minX)
+        {
+            return Mathf.Abs(position.x - boundary.minX);
+        }
+        else if (position.x > boundary.maxX)
+        {
+            return Mathf.Abs(position.x - boundary.maxX);
+        }
+        else
+        {
+            return 0f;
+        }
     }
 
     // 属性访问器

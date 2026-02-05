@@ -5,216 +5,225 @@ using UnityEngine;
 public class AreaManager : MonoBehaviour
 {
     [System.Serializable]
-    public class Area
+    public class AreaData
     {
-        public string areaName = "New Area";
-        public List<Collider2D> subAreas = new List<Collider2D>(); // 区域的所有子区域
-        public GameObject spriteContainer; // 包含所有贴图的物体
-        [HideInInspector] public List<SpriteRenderer> targetSprites = new List<SpriteRenderer>(); // 自动收集的贴图
-        [HideInInspector] public int playerCount = 0; // 玩家在该区域中的数量
+        public string areaName = "New Area"; // 区域名称（可选，方便识别）
+        public List<Collider2D> triggerColliders = new List<Collider2D>(); // 多个触发器碰撞箱
+        public SpriteRenderer targetSprite; // 对应的贴图
+        [Range(0.1f, 5f)] public float fadeDuration = 1f; // 淡入淡出时间
 
-        // 渐变参数
-        [Range(0.1f, 5f)]
-        public float fadeDuration = 1f;
-        [Range(0f, 1f)]
-        public float targetAlpha = 1f;
+        [HideInInspector] public int activeTriggers = 0; // 当前激活的触发器数量
+        [HideInInspector] public Coroutine fadeCoroutine; // 当前运行的协程
 
-        // 当前透明度
-        [HideInInspector] public float currentAlpha = 0f;
-        [HideInInspector] public Coroutine fadeCoroutine;
-
-        // 自动收集物体上的所有SpriteRenderer
-        public void CollectSprites()
+        // 检查碰撞箱是否属于此区域
+        public bool ContainsCollider(Collider2D collider)
         {
-            targetSprites.Clear();
-
-            if (spriteContainer != null)
-            {
-                // 收集容器物体及其所有子物体上的SpriteRenderer
-                SpriteRenderer[] allRenderers = spriteContainer.GetComponentsInChildren<SpriteRenderer>(true);
-                targetSprites.AddRange(allRenderers);
-            }
+            return triggerColliders.Contains(collider);
         }
     }
 
-    public List<Area> areas = new List<Area>();
-    public GameObject playerObject; // 直接拖拽玩家对象
+    public List<AreaData> areaList = new List<AreaData>(); // 存储所有区域数据
 
-    private Dictionary<Collider2D, Area> colliderToAreaMap = new Dictionary<Collider2D, Area>();
-    private Dictionary<Area, HashSet<GameObject>> playersInArea = new Dictionary<Area, HashSet<GameObject>>();
+    // 字典：碰撞箱 -> 区域数据，用于快速查找
+    private Dictionary<Collider2D, AreaData> colliderToAreaMap = new Dictionary<Collider2D, AreaData>();
 
     void Start()
     {
-        CollectAllSprites();
+        // 初始化映射关系
         InitializeAreaMapping();
-        InitializeSprites();
-    }
-
-    void CollectAllSprites()
-    {
-        foreach (var area in areas)
-        {
-            area.CollectSprites();
-        }
     }
 
     void InitializeAreaMapping()
     {
         colliderToAreaMap.Clear();
-        playersInArea.Clear();
 
-        foreach (var area in areas)
+        foreach (var area in areaList)
         {
-            playersInArea[area] = new HashSet<GameObject>();
-
-            foreach (var collider in area.subAreas)
+            if (area.targetSprite != null && area.triggerColliders.Count > 0)
             {
-                if (collider != null)
-                {
-                    colliderToAreaMap[collider] = area;
+                // 初始时设置贴图为完全透明
+                Color spriteColor = area.targetSprite.color;
+                spriteColor.a = 0f;
+                area.targetSprite.color = spriteColor;
 
-                    // 确保碰撞器设置为触发器
-                    collider.isTrigger = true;
+                // 重置激活计数器
+                area.activeTriggers = 0;
+
+                // 将每个碰撞箱映射到区域
+                foreach (var collider in area.triggerColliders)
+                {
+                    if (collider != null)
+                    {
+                        // 确保触发器是启用的
+                        collider.isTrigger = true;
+                        colliderToAreaMap[collider] = area;
+                    }
+                    else
+                    {
+                        Debug.LogWarning($"区域 '{area.areaName}' 中存在空的碰撞箱引用！");
+                    }
                 }
+            }
+            else
+            {
+                if (area.targetSprite == null)
+                    Debug.LogWarning($"区域 '{area.areaName}' 的TargetSprite未设置！");
+                if (area.triggerColliders.Count == 0)
+                    Debug.LogWarning($"区域 '{area.areaName}' 没有设置任何触发器碰撞箱！");
             }
         }
     }
 
-    void InitializeSprites()
+    private void OnTriggerEnter2D(Collider2D other)
     {
-        foreach (var area in areas)
+        if (colliderToAreaMap.TryGetValue(other, out AreaData areaData))
         {
-            foreach (var sprite in area.targetSprites)
+            // 增加激活的触发器数量
+            areaData.activeTriggers++;
+
+            // 如果是第一个激活的触发器，开始淡入
+            if (areaData.activeTriggers == 1)
             {
-                if (sprite != null)
-                {
-                    Color color = sprite.color;
-                    color.a = 0f;
-                    sprite.color = color;
-                    area.currentAlpha = 0f;
-                }
+                StartFade(areaData, true);
             }
         }
     }
 
-    void OnTriggerEnter2D(Collider2D other)
+    private void OnTriggerExit2D(Collider2D other)
     {
-        if (playerObject == null || other.gameObject != playerObject) return;
-
-        var c = GetComponent<Collider2D>();
-        if (colliderToAreaMap.TryGetValue(c, out Area area))
+        if (colliderToAreaMap.TryGetValue(other, out AreaData areaData))
         {
-            GameObject player = other.gameObject;
+            // 减少激活的触发器数量
+            areaData.activeTriggers = Mathf.Max(0, areaData.activeTriggers - 1);
 
-            if (!playersInArea[area].Contains(player))
+            // 如果没有激活的触发器了，开始淡出
+            if (areaData.activeTriggers == 0)
             {
-                playersInArea[area].Add(player);
-                area.playerCount = playersInArea[area].Count;
-
-                if (area.playerCount == 1)
-                {
-                    if (area.fadeCoroutine != null)
-                        StopCoroutine(area.fadeCoroutine);
-
-                    area.fadeCoroutine = StartCoroutine(FadeArea(area, area.targetAlpha));
-                }
+                StartFade(areaData, false);
             }
         }
     }
 
-    void OnTriggerExit2D(Collider2D other)
+    void StartFade(AreaData areaData, bool fadeIn)
     {
-        if (playerObject == null || other.gameObject != playerObject) return;
-
-        var c = GetComponent<Collider2D>();
-        if (colliderToAreaMap.TryGetValue(c, out Area area))
+        // 如果已经有协程在运行，先停止它
+        if (areaData.fadeCoroutine != null)
         {
-            GameObject player = other.gameObject;
-
-            if (playersInArea[area].Contains(player))
-            {
-                playersInArea[area].Remove(player);
-                area.playerCount = playersInArea[area].Count;
-
-                if (area.playerCount == 0)
-                {
-                    if (area.fadeCoroutine != null)
-                        StopCoroutine(area.fadeCoroutine);
-
-                    area.fadeCoroutine = StartCoroutine(FadeArea(area, 0f));
-                }
-            }
+            StopCoroutine(areaData.fadeCoroutine);
         }
+
+        // 开始新的淡入淡出协程
+        float targetAlpha = fadeIn ? 1f : 0f;
+        areaData.fadeCoroutine = StartCoroutine(FadeSprite(areaData, targetAlpha));
     }
 
-    IEnumerator FadeArea(Area area, float targetAlpha)
+    private IEnumerator FadeSprite(AreaData areaData, float targetAlpha)
     {
-        float startAlpha = area.currentAlpha;
+        SpriteRenderer sprite = areaData.targetSprite;
+        float duration = areaData.fadeDuration;
         float elapsedTime = 0f;
 
-        while (elapsedTime < area.fadeDuration)
+        float startAlpha = sprite.color.a;
+
+        while (elapsedTime < duration)
         {
             elapsedTime += Time.deltaTime;
-            float t = Mathf.Clamp01(elapsedTime / area.fadeDuration);
+            float t = Mathf.Clamp01(elapsedTime / duration);
 
-            float newAlpha = Mathf.Lerp(startAlpha, targetAlpha, t);
-            area.currentAlpha = newAlpha;
-
-            // 更新所有贴图的透明度
-            foreach (var sprite in area.targetSprites)
-            {
-                if (sprite != null)
-                {
-                    Color color = sprite.color;
-                    color.a = newAlpha;
-                    sprite.color = color;
-                }
-            }
+            Color currentColor = sprite.color;
+            currentColor.a = Mathf.Lerp(startAlpha, targetAlpha, t);
+            sprite.color = currentColor;
 
             yield return null;
         }
 
-        // 确保最终值准确
-        area.currentAlpha = targetAlpha;
-        foreach (var sprite in area.targetSprites)
+        // 确保最终颜色正确
+        Color finalColor = sprite.color;
+        finalColor.a = targetAlpha;
+        sprite.color = finalColor;
+
+        areaData.fadeCoroutine = null;
+    }
+
+    // 重置所有区域的透明度
+    public void ResetAllAreas()
+    {
+        foreach (var area in areaList)
         {
-            if (sprite != null)
+            if (area.fadeCoroutine != null)
             {
-                Color color = sprite.color;
-                color.a = targetAlpha;
-                sprite.color = color;
+                StopCoroutine(area.fadeCoroutine);
+                area.fadeCoroutine = null;
             }
+
+            if (area.targetSprite != null)
+            {
+                Color color = area.targetSprite.color;
+                color.a = 0f;
+                area.targetSprite.color = color;
+            }
+
+            area.activeTriggers = 0;
         }
-
-        area.fadeCoroutine = null;
     }
 
-    // 编辑器辅助方法
-    [ContextMenu("添加新区域")]
-    public void AddNewArea()
+    // 手动触发区域淡入（用于测试或脚本控制）
+    public void ActivateArea(string areaName)
     {
-        areas.Add(new Area() { areaName = "区域 " + (areas.Count + 1) });
-    }
-
-    [ContextMenu("重新收集所有贴图")]
-    public void RecollectAllSprites()
-    {
-        CollectAllSprites();
-    }
-
-    // 强制设置区域透明度（用于调试）
-    public void SetAreaAlpha(string areaName, float alpha)
-    {
-        foreach (var area in areas)
+        foreach (var area in areaList)
         {
             if (area.areaName == areaName)
             {
-                if (area.fadeCoroutine != null)
-                    StopCoroutine(area.fadeCoroutine);
-
-                StartCoroutine(FadeArea(area, Mathf.Clamp01(alpha)));
+                area.activeTriggers = 1;
+                StartFade(area, true);
                 break;
             }
         }
     }
+
+    // 手动触发区域淡出（用于测试或脚本控制）
+    public void DeactivateArea(string areaName)
+    {
+        foreach (var area in areaList)
+        {
+            if (area.areaName == areaName)
+            {
+                area.activeTriggers = 0;
+                StartFade(area, false);
+                break;
+            }
+        }
+    }
+
+    // 编辑器辅助方法
+#if UNITY_EDITOR
+    public void AddNewArea()
+    {
+        areaList.Add(new AreaData());
+    }
+
+    public void RemoveArea(int index)
+    {
+        if (index >= 0 && index < areaList.Count)
+        {
+            areaList.RemoveAt(index);
+        }
+    }
+
+    // 在Inspector中修改后重新初始化映射
+    void OnValidate()
+    {
+        // 注意：OnValidate在编辑模式下运行，我们只在编辑器状态下重新初始化
+        if (!Application.isPlaying)
+        {
+            UnityEditor.EditorApplication.delayCall += () =>
+            {
+                if (this != null)
+                {
+                    InitializeAreaMapping();
+                }
+            };
+        }
+    }
+#endif
 }
