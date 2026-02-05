@@ -67,6 +67,7 @@ public class BaseEnemy : MonoBehaviour
     private ActSeq death = new();
     private EnemyBehaviour currentBehaviour;
     private HierarchicalStateMachine enemyStateMachine;
+    private HitInfo incomingHitInfo;
 
     private bool hasEntranceSequence;
     private bool hasDeathSequence;
@@ -401,7 +402,6 @@ public class BaseEnemy : MonoBehaviour
         return BlankBehaviourName;
     }
 
-    private HitInfo incomingHitInfo;
 
     private void HandleIncomingAttack(GameObject other)
     {
@@ -410,11 +410,21 @@ public class BaseEnemy : MonoBehaviour
             if (hitInfo.used || hitInfo.AttackPosition == Position.Hostile) return;
             var incoming = hitInfo.GetHitInfo();
 
+            if (incoming.IsValid)
+            {
+                currentHP -= Mathf.RoundToInt(incoming.Damage);
+                hitInfo.used = true;
+                Debug.Log($"[{enemyName}] took {incoming.Damage} damage from {incoming.Source.name}. Current HP: {currentHP}/{maxHP}");
+            }
         }
     }
 
     public void OnCollisionEnter2D(Collision2D collision)
     {
-        
+        HandleIncomingAttack(collision.gameObject);
+    }
+    public void OnTriggerEnter2D(Collider2D collider)
+    {
+        HandleIncomingAttack(collider.gameObject);
     }
 }
