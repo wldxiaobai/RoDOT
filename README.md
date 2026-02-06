@@ -8,6 +8,7 @@
 * 添加了玩家攻击的碰撞箱，现在它可以正确的攻击到以BaseEnemy为基类的敌人。
 * 修复了ActSeq的CloneTo函数完全不起效的问题。
 * 修复了BaseEnemy挂载的怪物行为不被执行的问题。
+* 在Assets/Scripts/Example文件夹里添加了一个使用BaseEnemy驱动敌怪行为的样例。
 
 ### 0.2.1
 
