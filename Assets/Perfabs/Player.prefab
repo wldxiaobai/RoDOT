@@ -223,7 +223,10 @@ GameObject:
   - component: {fileID: 1639562911807862400}
   - component: {fileID: 3556975864015512452}
   - component: {fileID: 4455229661660741923}
-  - component: {fileID: 1256965447404996340}
+  - component: {fileID: 2135398936599226554}
+  - component: {fileID: 3780050423196841125}
+  - component: {fileID: 4440635453358921090}
+  - component: {fileID: 2302495679727620408}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -445,7 +448,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &1256965447404996340
+--- !u!114 &2135398936599226554
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -454,12 +457,68 @@ MonoBehaviour:
   m_GameObject: {fileID: 7582776332695481402}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 30c826cb3791a9c4388348a0484a064b, type: 3}
+  m_Script: {fileID: 11500000, guid: 476dfec28edb4e545bb0dcefe4b7a742, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  attackHitbox: {fileID: 7640605198383117080}
-  parryHitbox: {fileID: 4130921524453080540}
-  parryFollowupHitbox: {fileID: 1997902618806221391}
+  areaList:
+  - areaName: 1
+    triggerColliders:
+    - {fileID: 0}
+    targetSprite: {fileID: 0}
+    fadeDuration: 0.3
+    activeTriggers: 0
+  - areaName: 2
+    triggerColliders:
+    - {fileID: 0}
+    - {fileID: 0}
+    targetSprite: {fileID: 0}
+    fadeDuration: 0.3
+    activeTriggers: 0
+  - areaName: 2
+    triggerColliders:
+    - {fileID: 0}
+    targetSprite: {fileID: 0}
+    fadeDuration: 0.3
+    activeTriggers: 0
+--- !u!114 &3780050423196841125
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582776332695481402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6daf750355e9f404095c42825716711e, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attack: {fileID: 8934441263178172045}
+--- !u!114 &4440635453358921090
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582776332695481402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: de6f5d0cbe8b9074d87bc1073365c08f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attack: {fileID: 1282262608105618758}
+--- !u!114 &2302495679727620408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582776332695481402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ccf15b0d29506c14b80a553810c049ff, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  attack: {fileID: 5175495289002196775}
 --- !u!1 &8934441263178172045
 GameObject:
   m_ObjectHideFlags: 0

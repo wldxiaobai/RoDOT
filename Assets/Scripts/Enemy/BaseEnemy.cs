@@ -78,7 +78,6 @@ public class BaseEnemy : MonoBehaviour
     private bool deathSequenceStarted;
     private bool deathSequenceFinished;
     private string currentBehaviourName = BlankBehaviourName;
-    private string lastLoggedState = string.Empty;
 
     private bool ShouldPlayEntrance => NeedEntrance && hasEntranceSequence;
 
@@ -168,7 +167,6 @@ public class BaseEnemy : MonoBehaviour
         }
 
         enemyStateMachine.Stay();
-        LogStateChange();
     }
 
     private void BuildStateMachine()
@@ -209,6 +207,7 @@ public class BaseEnemy : MonoBehaviour
         if (!ShouldPlayEntrance)
         {
             enemyStateMachine.TransitionTo(DecisionStateName);
+            Debug.Log($"[{enemyName}] No entrance sequence. Transitioning to {DecisionStateName}.");
             return;
         }
 
@@ -222,6 +221,7 @@ public class BaseEnemy : MonoBehaviour
         {
             entranceSequencePlaying = false;
             enemyStateMachine.TransitionTo(DecisionStateName);
+            Debug.Log($"[{enemyName}] Entrance sequence finished. Transitioning to {DecisionStateName}.");
         }
     }
 
@@ -238,6 +238,7 @@ public class BaseEnemy : MonoBehaviour
     {
         PrepareNextBehaviour();
         enemyStateMachine.TransitionTo(BehaviourStateName);
+        Debug.Log($"[{enemyName}] Transitioning to {BehaviourStateName} with behaviour {currentBehaviourName}.");
     }
 
     private void PrepareNextBehaviour()
@@ -283,8 +284,14 @@ public class BaseEnemy : MonoBehaviour
     {
         if (behaviourSequenceStarted)
         {
-            if (currentBehaviour.skillBody == null || !currentBehaviour.skillBody.IsPlaying)
+            if (currentBehaviour.skillBody == null || currentBehaviour.skillBody.EndedTrigger)
             {
+                if(currentBehaviour.skillBody == null)
+                {
+                    Debug.Log($"未注册 {currentBehaviourName}");
+                }
+                else
+                    Debug.Log($"{currentBehaviourName} 已结束");
                 enemyStateMachine.TransitionTo(DecisionStateName);
             }
             return;
@@ -354,6 +361,7 @@ public class BaseEnemy : MonoBehaviour
 
         currentBehaviour.skillBody.Play(this);
         behaviourSequenceStarted = true;
+        Debug.Log($"{currentBehaviourName} 已开始");
     }
 
     private void FinalizeDeath()
@@ -378,23 +386,7 @@ public class BaseEnemy : MonoBehaviour
         }
 
         enemyStateMachine.TransitionTo(DeathStateName);
-    }
-
-    private void LogStateChange()
-    {
-        if (enemyStateMachine == null)
-        {
-            return;
-        }
-
-        var currentState = enemyStateMachine.CurrentStateName;
-        if (currentState == lastLoggedState)
-        {
-            return;
-        }
-
-        lastLoggedState = currentState;
-        Debug.Log($"[{enemyName}] CurrentStateName -> {currentState}");
+        Debug.Log($"[{enemyName}] HP dropped to 0. Transitioning to {DeathStateName}.");
     }
 
     protected virtual string DecideNextBehaviour()
