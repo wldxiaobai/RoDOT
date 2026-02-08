@@ -131,21 +131,6 @@ public class CameraFollow : MonoBehaviour
 
     void Start()
     {
-        // 如果没有设置目标，尝试查找玩家标签的对象
-        if (target == null)
-        {
-            GameObject player = GameObject.FindGameObjectWithTag("Player");
-            if (player != null)
-            {
-                target = player.transform;
-                Debug.Log("摄像头自动找到玩家对象: " + player.name);
-            }
-            else
-            {
-                Debug.LogWarning("摄像头跟随脚本未找到目标对象，请在Unity编辑器中分配目标。");
-            }
-        }
-
         // 如果没有边界设置，创建一个默认边界
         if (boundaries == null || boundaries.Length == 0)
         {
@@ -238,6 +223,12 @@ public class CameraFollow : MonoBehaviour
 
     void FixedUpdate()
     {
+        // 如果没有设置目标，尝试查找玩家标签的对象
+        if (target == null)
+        {
+            target = GlobalPlayer.Instance.Player?.transform;
+        }
+
         // 如果启用了FixedUpdate同步，在这里处理摄像头跟随
         if (useFixedUpdate)
         {

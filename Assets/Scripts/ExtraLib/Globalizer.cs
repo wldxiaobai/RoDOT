@@ -18,6 +18,12 @@ public abstract class Globalizer<T> : MonoBehaviour where T : Globalizer<T> // �
 
         _instance = (T)this;             // 将当前组件注册为该类型的唯一实例
         DontDestroyOnLoad(gameObject);   // 将承载该组件的 GameObject 设为跨场景常驻
+        GlobeInit();
+    }
+
+    protected virtual void GlobeInit()
+    {
+        // 可由派生类重写，在单例实例化后执行额外的初始化逻辑
     }
 
     protected virtual void OnDestroy()
