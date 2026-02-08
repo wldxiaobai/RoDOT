@@ -2,15 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-[System.Serializable]
-public class SaveData
-{
-    public int score;
-    public float playerX;
-    public float playerY;
-    // 你需要保存的数据
-}
-
 public class SaveManeger : Globalizer<SaveManeger>
 {
     public void SaveGame(SaveData data)
@@ -29,4 +20,13 @@ public class SaveManeger : Globalizer<SaveManeger>
         }
         return null;
     }
+}
+
+[System.Serializable]
+public class SaveData
+{
+    public int score;
+    public float playerX;
+    public float playerY;
+    // 你需要保存的数据
 }

@@ -4,10 +4,6 @@ using UnityEngine;
 
 public class PlayerHealth : Globalizer<PlayerHealth>
 {
-    [Tooltip("控制血条UI的脚本对象")]
-    [SerializeField] private HealthBarControl healthBarUI;
-    [Tooltip("控制血条数字的脚本对象")]
-    [SerializeField] private HealthBarNumber healthBarNum;
     [Tooltip("最大生命值")]
     [SerializeField] private int maxHealth = 100;
     [Tooltip("是否开启调试功能")]
@@ -19,24 +15,18 @@ public class PlayerHealth : Globalizer<PlayerHealth>
     {
         base.Awake();
         currentHealth = maxHealth;
-        healthBarUI.UpdateHealthBar((float)currentHealth / maxHealth);
-        healthBarNum.UpdateHealthNumber(currentHealth, maxHealth);
     }
 
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
         currentHealth = Mathf.Max(currentHealth, 0);
-        healthBarUI.UpdateHealthBar((float)currentHealth / maxHealth);
-        healthBarNum.UpdateHealthNumber(currentHealth, maxHealth);
     }
 
     public void Heal(int amount)
     {
         currentHealth += amount;
         currentHealth = Mathf.Min(currentHealth, maxHealth);
-        healthBarUI.UpdateHealthBar((float)currentHealth / maxHealth);
-        healthBarNum.UpdateHealthNumber(currentHealth, maxHealth);
     }
 
     private void Update()
