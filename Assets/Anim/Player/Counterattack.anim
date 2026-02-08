@@ -104,28 +104,28 @@ AnimationClip:
   m_HasMotionFloatCurves: 0
   m_Events:
   - time: 0
-    functionName: EnableParryHitbox
+    functionName: ParryOn
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.26666668
-    functionName: DisableParryHitbox
+    functionName: ParryOff
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.33333334
-    functionName: EnableParryFollowupHitbox
+    functionName: Parry2On
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 0.6666667
-    functionName: DisableParryFollowupHitbox
+    functionName: Parry2Off
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

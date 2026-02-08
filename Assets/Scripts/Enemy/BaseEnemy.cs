@@ -23,6 +23,15 @@ public class BaseEnemy : MonoBehaviour
     public int CurrentHP => currentHP;
     public bool DestroyOnDeath => destroyOnDeath;
 
+    private Animator _animator;
+    private float _defaultAnimatorSpeed;
+    private Timer InvincibleTimer = new();
+    protected Animator Animator => _animator != null ? _animator : _animator = GetComponent<Animator>();
+    private Transform _lastHitSource;
+    private Vector2 _lastHitDirection = Vector2.right;
+    protected Transform LastHitSource => _lastHitSource;
+    protected Vector2 LastHitDirection => _lastHitDirection;
+
     public struct EnemyBehaviour
     {
         public float preSkillDelay;
@@ -68,6 +77,7 @@ public class BaseEnemy : MonoBehaviour
     private EnemyBehaviour currentBehaviour;
     private HierarchicalStateMachine enemyStateMachine;
     private HitInfo incomingHitInfo;
+    protected string CurrentEnemyStateName => enemyStateMachine?.CurrentStateName ?? string.Empty;
 
     private bool hasEntranceSequence;
     private bool hasDeathSequence;
@@ -78,7 +88,6 @@ public class BaseEnemy : MonoBehaviour
     private bool deathSequenceStarted;
     private bool deathSequenceFinished;
     private string currentBehaviourName = BlankBehaviourName;
-    private string lastLoggedState = string.Empty;
 
     private bool ShouldPlayEntrance => NeedEntrance && hasEntranceSequence;
 
@@ -148,6 +157,13 @@ public class BaseEnemy : MonoBehaviour
         blank.SetNext(defaultBehav.End);
         AddBehaviour(BlankBehaviourName, 0f, defaultBehav);
         BuildStateMachine();
+        _defaultAnimatorSpeed = _animator != null ? _animator.speed : 1f;
+        EnemyInit();
+    }
+
+    protected virtual void EnemyInit()
+    {
+        // 子类可以重写此方法进行初始化
     }
 
     private void Start()
@@ -168,7 +184,7 @@ public class BaseEnemy : MonoBehaviour
         }
 
         enemyStateMachine.Stay();
-        LogStateChange();
+        InvincibleTimer?.Update();
     }
 
     private void BuildStateMachine()
@@ -209,6 +225,7 @@ public class BaseEnemy : MonoBehaviour
         if (!ShouldPlayEntrance)
         {
             enemyStateMachine.TransitionTo(DecisionStateName);
+            Debug.Log($"[{enemyName}] No entrance sequence. Transitioning to {DecisionStateName}.");
             return;
         }
 
@@ -222,6 +239,7 @@ public class BaseEnemy : MonoBehaviour
         {
             entranceSequencePlaying = false;
             enemyStateMachine.TransitionTo(DecisionStateName);
+            Debug.Log($"[{enemyName}] Entrance sequence finished. Transitioning to {DecisionStateName}.");
         }
     }
 
@@ -238,6 +256,7 @@ public class BaseEnemy : MonoBehaviour
     {
         PrepareNextBehaviour();
         enemyStateMachine.TransitionTo(BehaviourStateName);
+        Debug.Log($"[{enemyName}] Transitioning to {BehaviourStateName} with behaviour {currentBehaviourName}.");
     }
 
     private void PrepareNextBehaviour()
@@ -283,8 +302,14 @@ public class BaseEnemy : MonoBehaviour
     {
         if (behaviourSequenceStarted)
         {
-            if (currentBehaviour.skillBody == null || !currentBehaviour.skillBody.IsPlaying)
+            if (currentBehaviour.skillBody == null || currentBehaviour.skillBody.EndedTrigger)
             {
+                if(currentBehaviour.skillBody == null)
+                {
+                    Debug.Log($"未注册 {currentBehaviourName}");
+                }
+                else
+                    Debug.Log($"{currentBehaviourName} 已结束");
                 enemyStateMachine.TransitionTo(DecisionStateName);
             }
             return;
@@ -354,6 +379,7 @@ public class BaseEnemy : MonoBehaviour
 
         currentBehaviour.skillBody.Play(this);
         behaviourSequenceStarted = true;
+        Debug.Log($"{currentBehaviourName} 已开始");
     }
 
     private void FinalizeDeath()
@@ -378,23 +404,7 @@ public class BaseEnemy : MonoBehaviour
         }
 
         enemyStateMachine.TransitionTo(DeathStateName);
-    }
-
-    private void LogStateChange()
-    {
-        if (enemyStateMachine == null)
-        {
-            return;
-        }
-
-        var currentState = enemyStateMachine.CurrentStateName;
-        if (currentState == lastLoggedState)
-        {
-            return;
-        }
-
-        lastLoggedState = currentState;
-        Debug.Log($"[{enemyName}] CurrentStateName -> {currentState}");
+        Debug.Log($"[{enemyName}] HP dropped to 0. Transitioning to {DeathStateName}.");
     }
 
     protected virtual string DecideNextBehaviour()
@@ -407,16 +417,38 @@ public class BaseEnemy : MonoBehaviour
     {
         if(other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
-            if (hitInfo.used || hitInfo.AttackPosition == Position.Hostile) return;
+            if (hitInfo.used || hitInfo.AttackPosition == Position.Hostile || InvincibleTimer.IsRunning) return;
             var incoming = hitInfo.GetHitInfo();
 
             if (incoming.IsValid)
             {
                 currentHP -= Mathf.RoundToInt(incoming.Damage);
                 hitInfo.used = true;
-                Debug.Log($"[{enemyName}] took {incoming.Damage} damage from {incoming.Source.name}. Current HP: {currentHP}/{maxHP}");
+                OnHitByPlayerAttack(incoming);
             }
         }
+    }
+
+    protected virtual void OnHitByPlayerAttack(HitInfo incoming)
+    {
+        _lastHitSource = incoming.Source?.transform;
+        if (_lastHitSource != null)
+        {
+            var delta = _lastHitSource.position - transform.position;
+            _lastHitDirection = delta.sqrMagnitude > 0f ? delta.normalized : Vector2.right;
+        }
+    }
+
+    protected void StartInvincibleTimer(float duration)
+    {
+        InvincibleTimer.StartTimer(duration);
+    }
+
+    protected bool IsInvincible => InvincibleTimer.IsRunning;
+
+    protected void StopInvincibleTimer()
+    {
+        InvincibleTimer.StopTimer();
     }
 
     public void OnCollisionEnter2D(Collision2D collision)
@@ -426,5 +458,51 @@ public class BaseEnemy : MonoBehaviour
     public void OnTriggerEnter2D(Collider2D collider)
     {
         HandleIncomingAttack(collider.gameObject);
+    }
+
+    // 动画速度调整工具
+    protected void AdjustAnimatorSpeedForClip(string clipName, float desiredDuration)
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        var clip = GetAnimationClipByName(clipName);
+        if (clip == null || desiredDuration <= 0f)
+        {
+            _animator.speed = _defaultAnimatorSpeed;
+            return;
+        }
+
+        _animator.speed = clip.length / desiredDuration;
+    }
+
+    protected AnimationClip GetAnimationClipByName(string clipName)
+    {
+        if (_animator == null || _animator.runtimeAnimatorController == null)
+        {
+            return null;
+        }
+
+        foreach (var clip in _animator.runtimeAnimatorController.animationClips)
+        {
+            if (clip.name == clipName)
+            {
+                return clip;
+            }
+        }
+
+        return null;
+    }
+
+    protected void ResetAnimatorSpeed()
+    {
+        if (_animator == null)
+        {
+            return;
+        }
+
+        _animator.speed = _defaultAnimatorSpeed;
     }
 }

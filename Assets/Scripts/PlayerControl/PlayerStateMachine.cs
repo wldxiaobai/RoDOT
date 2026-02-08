@@ -32,10 +32,10 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("视效设置")]
     [Tooltip("闪烁特效时长")]
     [SerializeField] private float flashDuration = 0.2f;
-    [Tooltip("格挡闪烁颜色")]
-    [SerializeField] private Color blockFlashColor = new(0.5f, 1f, 1f, 1f);
     [Tooltip("受伤闪烁颜色")]
     [SerializeField] private Color hurtFlashColor = new(1f, 0.5f, 0.5f, 1f);
+    [Tooltip("格挡闪烁颜色")]
+    [SerializeField] private Color blockFlashColor = new(0.5f, 1f, 1f, 1f);
     [Tooltip("弹反闪烁提示颜色")]
     [SerializeField] private Color parryFlashColor = new(1f, 1f, 0.5f, 1f);
 
@@ -245,7 +245,7 @@ public class PlayerStateMachine : MonoBehaviour
             _animator.SetBool(walkAnimParam, horizontal != 0f);
             if (activeState != goalState)
             {
-                SwitchToGroundSubState(goalState);
+                SwitchToGroundOrFloatingState(goalState);
             }
         }
 
@@ -428,7 +428,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (grounded && vel.y <= 0f)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
         }
     }
 
@@ -440,7 +440,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (grounded && vel.y <= 0f)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
         }
     }
 
@@ -501,6 +501,17 @@ public class PlayerStateMachine : MonoBehaviour
         _airMovementState.TransitionTo(targetSubState);
     }
 
+    private void SwitchToGroundOrFloatingState(string targetSubState)
+    {
+        if (string.Equals(targetSubState, StandStateName, StringComparison.Ordinal) && !grounded)
+        {
+            SwitchToAirSubState(FloatingSubStateName);
+            return;
+        }
+
+        SwitchToGroundSubState(targetSubState);
+    }
+
     private void UpdateJumpVerticalMotion()
     {
         if (!jumpHoldTimer.IsRunning &&
@@ -533,7 +544,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return this.MoveByStep(step, dashDuration, 0.3f);
         _dashCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundSubState(nextState);
+        SwitchToGroundOrFloatingState(nextState);
     }
 
     private void StayDash()
@@ -575,7 +586,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return this.MoveByStep(step, hurtDuration, 0.8f);
         _hurtCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundSubState(nextState);
+        SwitchToGroundOrFloatingState(nextState);
     }
 
     private void StayHurt()
@@ -627,7 +638,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return new WaitForSeconds(attackDuration);
         _attackCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundSubState(nextState);
+        SwitchToGroundOrFloatingState(nextState);
     }
 
     private void ExitAttack()
@@ -672,7 +683,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (grounded)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
         }
         else
         {
@@ -704,7 +715,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (!blockActionChain.IsPlaying)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
         }
     }
 
@@ -879,7 +890,7 @@ public class PlayerStateMachine : MonoBehaviour
             var step = KbDir * hurtKbDistance * 0.7f;
             yield return this.MoveByStep(step, hurtDuration, 0.8f);
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
             invincibleTimer.StartTimer(0.1f);
         }
 
