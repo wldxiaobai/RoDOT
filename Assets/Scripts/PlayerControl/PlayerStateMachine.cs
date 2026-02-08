@@ -189,6 +189,12 @@ public class PlayerStateMachine : MonoBehaviour
     // ==== 主循环: 输入与状态更新 ==== //
     private void Update()
     {
+        if (GlobalPlayer.Instance != null && GlobalPlayer.Instance.Player != gameObject)
+        {
+            // 确保GlobalPlayer引用当前玩家对象
+            GlobalPlayer.Instance.AcceptPlayerObject(gameObject);
+        }
+
         jumpHoldTimer.Update();
         dashCDTimer.Update();
         invincibleTimer.Update();
