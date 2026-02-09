@@ -100,7 +100,6 @@ MonoBehaviour:
   AttackPosition: 2
   StunDuration: 0.5
   ParryWindow: 0.2
-  used: 0
 --- !u!1 &657954275732168673
 GameObject:
   m_ObjectHideFlags: 0
@@ -314,12 +313,12 @@ MonoBehaviour:
   detectionLossMultiplier: 1.25
   playerTag: Player
   attackDuration: 0.7
-  idleDuration: 0.4
+  idleDuration: 0.7
   attackRangeCollider: {fileID: 4762798378398927733}
   fallbackAttackRange: 1.2
   hurtRetreatDuration: 0.5
   hurtRetreatSpeed: 2.6
-  hurtIdleAfterRetreat: 0.25
+  hurtIdleAfterRetreat: 0.4
 --- !u!114 &1259072433354441383
 MonoBehaviour:
   m_ObjectHideFlags: 0

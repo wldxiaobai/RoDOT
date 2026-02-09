@@ -417,13 +417,16 @@ public class BaseEnemy : MonoBehaviour
     {
         if(other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
-            if (hitInfo.used || hitInfo.AttackPosition == Position.Hostile || InvincibleTimer.IsRunning) return;
+            if (hitInfo.GetHitResult(gameObject) != HitResult.None || 
+                hitInfo.AttackPosition == Position.Hostile || 
+                InvincibleTimer.IsRunning) 
+                return;
             var incoming = hitInfo.GetHitInfo();
 
             if (incoming.IsValid)
             {
                 currentHP -= Mathf.RoundToInt(incoming.Damage);
-                hitInfo.used = true;
+                hitInfo.RecordHitObject(gameObject);
                 OnHitByPlayerAttack(incoming);
             }
         }

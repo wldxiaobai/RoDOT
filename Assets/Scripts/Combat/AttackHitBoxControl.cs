@@ -16,7 +16,7 @@ public abstract class AttackHitBoxControl : MonoBehaviour
         attackHitInfo = attack.GetComponent<AttackHitInfo>();
 
         attackHitbox.enabled = false;
-        attackHitInfo.used = false;
+        attackHitInfo.ClearHitObjects();
     }
 
     protected void EnableAttackHitbox()
@@ -24,7 +24,7 @@ public abstract class AttackHitBoxControl : MonoBehaviour
         var x = GetComponent<SpriteRenderer>().flipX ? -1 : 1;
         attack.transform.localScale = new Vector3(x, 1, 1);
         attackHitbox.enabled = true;
-        attackHitInfo.used = false;
+        attackHitInfo.ClearHitObjects();
     }
 
     protected void DisableAttackHitbox()
