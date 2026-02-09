@@ -965,20 +965,22 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
-            if (hitInfo.used || hitInfo.AttackPosition == Position.Friendly) return;
+            if (hitInfo.GetHitResult(gameObject) != HitResult.None || 
+                hitInfo.AttackPosition == Position.Friendly) 
+                return;
             var incoming = hitInfo.GetHitInfo();
             if (tryCatchInfo && HitOnDirection(incoming))
             {
                 Debug.Log("格挡状态下收到攻击");
                 BlockedHitInfo = incoming;
-                hitInfo.used = true;
+                hitInfo.RecordHitObject(gameObject, HitResult.Blocked);
                 incomingHitInfo.Clear();
             }
             else if (!invincibleTimer.IsRunning)
             {
                 Debug.Log("常态下收到攻击");
                 incomingHitInfo = incoming;
-                hitInfo.used = true;
+                hitInfo.RecordHitObject(gameObject, HitResult.Hit);
                 BlockedHitInfo.Clear();
                 ProcessIncomingHit();
             }

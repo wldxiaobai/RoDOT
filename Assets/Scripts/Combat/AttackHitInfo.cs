@@ -1,12 +1,15 @@
+using System;
+using System.Collections.Generic;
 using UnityEngine;
 using static AttackHitInfo;
+
+public enum AttackGrade { Light, Heavy }
+public enum Position { Friendly, Neutral, Hostile }
+public enum HitResult { None, Hit, Blocked }
 
 [RequireComponent(typeof(Collider2D))]
 public class AttackHitInfo : MonoBehaviour
 {
-    public enum AttackGrade { Light, Heavy }
-    public enum Position { Friendly, Neutral, Hostile }
-
     [Tooltip("ÉËº¦Öµ")]
     public float Damage = 1f;
 
@@ -24,7 +27,10 @@ public class AttackHitInfo : MonoBehaviour
 
     public GameObject Source => gameObject;
 
-    public bool used = false;
+    public Dictionary<GameObject, HitResult> hitObjects = new();
+
+    public Action<GameObject> OnHit;
+    public Action<GameObject> OnBlocked;
 
     public HitInfo GetHitInfo()
     {
@@ -36,21 +42,45 @@ public class AttackHitInfo : MonoBehaviour
             StunDuration = StunDuration,
             ParryWindow = ParryWindow,
             Source = Source,
-            used = used
+            Origin = this
         };
+    }
+
+    public void RecordHitObject(GameObject obj, HitResult result = HitResult.Hit)
+    {
+        hitObjects[obj] = result;
+        switch(result)
+        {
+            case HitResult.Hit:
+                OnHit?.Invoke(obj);
+                break;
+            case HitResult.Blocked:
+                OnBlocked?.Invoke(obj);
+                break;
+        }
+    }
+
+    public void ClearHitObjects()
+    {
+        hitObjects.Clear();
+    }
+
+    public HitResult GetHitResult(GameObject obj)
+    {
+        return hitObjects.TryGetValue(obj, out var result) ? result : HitResult.None;
     }
 }
 
 public struct HitInfo
 {
-    public bool IsValid => Source != null && !used;
+    public bool IsValid => Source != null;
     public float Damage;
     public AttackGrade Grade;
     public Position AttackPosition;
     public float StunDuration;
     public float ParryWindow;
     public GameObject Source;
-    public bool used;
+    public AttackHitInfo Origin;
 
     public void Clear()
     {
@@ -60,6 +90,6 @@ public struct HitInfo
         StunDuration = 0f;
         ParryWindow = 0f;
         Source = null;
-        used = false;
+        Origin = null;
     }
 }
