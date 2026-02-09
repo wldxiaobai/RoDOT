@@ -10,8 +10,9 @@ public class ParallaxEffect : MonoBehaviour
     public List<GameObject> targetObjects = new List<GameObject>();  // 所有需要移动的物体
     public List<float> movementFactors = new List<float>();  // 每个物体的移动系数
 
-    private Vector3 lastCameraPosition;  // 上一帧摄像机位置
-    private Vector3 cameraDelta;         // 摄像机移动向量
+    [Header("调试信息")]
+    [SerializeField] private Vector3 lastCameraPosition;  // 上一帧摄像机位置
+    [SerializeField] private Vector3 cameraDelta;  // 摄像机移动向量
 
     void Start()
     {
@@ -67,9 +68,8 @@ public class ParallaxEffect : MonoBehaviour
 
             if (obj != null && factor != 0)
             {
-                // 只在X轴移动，并且与摄像机移动方向相同
-                float xMovement = cameraDelta.x * factor;
-                Vector3 objectMovement = new Vector3(xMovement, 0, 0);
+                // 计算物体应该移动的距离：摄像机移动的方向 × 系数（去掉负号）
+                Vector3 objectMovement = cameraDelta * factor;
 
                 // 应用移动
                 obj.transform.position += objectMovement;
@@ -89,34 +89,6 @@ public class ParallaxEffect : MonoBehaviour
         if (movementFactors.Count > targetObjects.Count)
         {
             movementFactors.RemoveRange(targetObjects.Count, movementFactors.Count - targetObjects.Count);
-        }
-    }
-
-    // 编辑器方法：用于添加新物体
-    public void AddNewObject(GameObject newObject, float factor = 1f)
-    {
-        if (newObject == null) return;
-
-        targetObjects.Add(newObject);
-        movementFactors.Add(factor);
-    }
-
-    // 编辑器方法：用于移除物体
-    public void RemoveObject(int index)
-    {
-        if (index >= 0 && index < targetObjects.Count)
-        {
-            targetObjects.RemoveAt(index);
-            movementFactors.RemoveAt(index);
-        }
-    }
-
-    // 编辑器方法：用于批量设置系数
-    public void SetAllFactors(float factor)
-    {
-        for (int i = 0; i < movementFactors.Count; i++)
-        {
-            movementFactors[i] = factor;
         }
     }
 }
