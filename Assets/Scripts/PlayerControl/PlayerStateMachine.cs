@@ -94,6 +94,10 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float blockSucceededDuration = 0.6f;
     [Tooltip("弹反成功动作时长")]
     [SerializeField] private float parrySucceededDuration = 0.8f;
+    [Tooltip("格挡震屏持续时长")]
+    [SerializeField] private float blockShakeDuration = 0.16f;
+    [Tooltip("格挡震屏强度")]
+    [SerializeField] private float blockShakeMagnitude = 0.2f;
 
     [Header("受伤")]
     [Tooltip("受伤击退距离")]
@@ -189,6 +193,12 @@ public class PlayerStateMachine : MonoBehaviour
     // ==== 主循环: 输入与状态更新 ==== //
     private void Update()
     {
+        if (GlobalPlayer.Instance != null && GlobalPlayer.Instance.Player != gameObject)
+        {
+            // 确保GlobalPlayer引用当前玩家对象
+            GlobalPlayer.Instance.AcceptPlayerObject(gameObject);
+        }
+
         jumpHoldTimer.Update();
         dashCDTimer.Update();
         invincibleTimer.Update();
@@ -861,7 +871,6 @@ public class PlayerStateMachine : MonoBehaviour
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
             _animator.SetTrigger(stunBreakParam);
-            FlashEffect(flashDuration, blockFlashColor);
             yield break;
         }
 
@@ -959,20 +968,25 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
-            if (hitInfo.used || hitInfo.AttackPosition == Position.Friendly) return;
+            if (hitInfo.GetHitResult(gameObject) != HitResult.None || 
+                hitInfo.AttackPosition == Position.Friendly) 
+                return;
             var incoming = hitInfo.GetHitInfo();
             if (tryCatchInfo && HitOnDirection(incoming))
             {
                 Debug.Log("格挡状态下收到攻击");
                 BlockedHitInfo = incoming;
-                hitInfo.used = true;
+                hitInfo.RecordHitObject(gameObject, HitResult.Blocked);
                 incomingHitInfo.Clear();
+                FlashEffect(flashDuration, blockFlashColor);
+                FreezeFrameManager.Instance.TriggerFreezeFrame();
+                CameraShakeManager.Instance.ShakeStraight(Vector2.left, blockShakeDuration, blockShakeMagnitude);
             }
             else if (!invincibleTimer.IsRunning)
             {
                 Debug.Log("常态下收到攻击");
                 incomingHitInfo = incoming;
-                hitInfo.used = true;
+                hitInfo.RecordHitObject(gameObject, HitResult.Hit);
                 BlockedHitInfo.Clear();
                 ProcessIncomingHit();
             }

@@ -4,54 +4,43 @@ using UnityEngine;
 
 public class PlayerHealth : Globalizer<PlayerHealth>
 {
-    [Tooltip("控制血条UI的脚本对象")]
-    [SerializeField] private HealthBarControl healthBarUI;
-    [Tooltip("控制血条数字的脚本对象")]
-    [SerializeField] private HealthBarNumber healthBarNum;
     [Tooltip("最大生命值")]
     [SerializeField] private int maxHealth = 100;
-    [Tooltip("是否开启调试功能")]
-    [SerializeField] bool debugMode = false;
 
-    private int currentHealth;
+    private AmountBar healthBar;
 
-    protected override void Awake()
+    protected override void GlobeInit()
     {
-        base.Awake();
-        currentHealth = maxHealth;
-        healthBarUI.UpdateHealthBar((float)currentHealth / maxHealth);
-        healthBarNum.UpdateHealthNumber(currentHealth, maxHealth);
+        healthBar = new AmountBar(maxHealth);
     }
 
     public void TakeDamage(int damage)
     {
-        currentHealth -= damage;
-        currentHealth = Mathf.Max(currentHealth, 0);
-        healthBarUI.UpdateHealthBar((float)currentHealth / maxHealth);
-        healthBarNum.UpdateHealthNumber(currentHealth, maxHealth);
+        healthBar.Decrease(damage);
     }
 
     public void Heal(int amount)
     {
-        currentHealth += amount;
-        currentHealth = Mathf.Min(currentHealth, maxHealth);
-        healthBarUI.UpdateHealthBar((float)currentHealth / maxHealth);
-        healthBarNum.UpdateHealthNumber(currentHealth, maxHealth);
+        healthBar.Increase(amount);
     }
 
-    private void Update()
+    public void SetMaxHealth(int newMaxHealth)
     {
-        if (debugMode)
-        {
-            if (Input.GetKeyDown(KeyCode.Equals))
-            {
-                Heal(10);
-            }
-            if (Input.GetKeyDown(KeyCode.Minus))
-            {
-                TakeDamage(10);
-            }
-        }
+        healthBar.MaxAmount = newMaxHealth;
+    }
 
+    public int MaxHealth
+    {
+        get { return (int)healthBar.MaxAmount; }
+    }
+
+    public int CurrentHealth
+    {
+        get { return (int)healthBar.CurrentAmount; }
+    }
+
+    public float HealthRate
+    {
+        get { return healthBar.Rate; }
     }
 }
