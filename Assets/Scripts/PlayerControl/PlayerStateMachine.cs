@@ -32,10 +32,13 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("视效设置")]
     [Tooltip("闪烁特效时长")]
     [SerializeField] private float flashDuration = 0.2f;
-    [Tooltip("格挡闪烁颜色")]
-    [SerializeField] private Color blockFlashColor = new(0.5f, 1f, 1f, 1f);
+    [Tooltip("闪烁颜色覆盖程度")]
+    [Range(0f, 1f)]
+    [SerializeField] private float colorCoverRate = 1f;
     [Tooltip("受伤闪烁颜色")]
     [SerializeField] private Color hurtFlashColor = new(1f, 0.5f, 0.5f, 1f);
+    [Tooltip("格挡闪烁颜色")]
+    [SerializeField] private Color blockFlashColor = new(0.5f, 1f, 1f, 1f);
     [Tooltip("弹反闪烁提示颜色")]
     [SerializeField] private Color parryFlashColor = new(1f, 1f, 0.5f, 1f);
 
@@ -94,6 +97,10 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float blockSucceededDuration = 0.6f;
     [Tooltip("弹反成功动作时长")]
     [SerializeField] private float parrySucceededDuration = 0.8f;
+    [Tooltip("格挡震屏持续时长")]
+    [SerializeField] private float blockShakeDuration = 0.16f;
+    [Tooltip("格挡震屏强度")]
+    [SerializeField] private float blockShakeMagnitude = 0.2f;
 
     [Header("受伤")]
     [Tooltip("受伤击退距离")]
@@ -117,6 +124,7 @@ public class PlayerStateMachine : MonoBehaviour
     private const string AttackFloatSubStateName = "FloatAttack";
 
     private Animator _animator;
+    private PlayerAudio playerAudio;
     private HierarchicalStateMachine _stateMachine;
     private HierarchicalStateMachine _groundMovementState;
     private HierarchicalStateMachine _airMovementState;
@@ -167,6 +175,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     private bool _skipJumpExitVelocityReset;
     private bool _preserveJumpHoldTimer;
+    private bool defended = false;
 
     // ==== Unity 生命周期 ==== //
     private void Awake()
@@ -189,6 +198,16 @@ public class PlayerStateMachine : MonoBehaviour
     // ==== 主循环: 输入与状态更新 ==== //
     private void Update()
     {
+        if (GlobalPlayer.Instance != null && GlobalPlayer.Instance.Player != gameObject)
+        {
+            // 确保GlobalPlayer引用当前玩家对象
+            GlobalPlayer.Instance.AcceptPlayerObject(gameObject);
+        }
+        if(playerAudio == null)
+        {
+            playerAudio = GetComponent<PlayerAudio>();
+        }
+
         jumpHoldTimer.Update();
         dashCDTimer.Update();
         invincibleTimer.Update();
@@ -245,7 +264,7 @@ public class PlayerStateMachine : MonoBehaviour
             _animator.SetBool(walkAnimParam, horizontal != 0f);
             if (activeState != goalState)
             {
-                SwitchToGroundSubState(goalState);
+                SwitchToGroundOrFloatingState(goalState);
             }
         }
 
@@ -428,7 +447,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (grounded && vel.y <= 0f)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
         }
     }
 
@@ -440,7 +459,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (grounded && vel.y <= 0f)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
+            playerAudio.PlayLandAudio();
         }
     }
 
@@ -501,6 +521,17 @@ public class PlayerStateMachine : MonoBehaviour
         _airMovementState.TransitionTo(targetSubState);
     }
 
+    private void SwitchToGroundOrFloatingState(string targetSubState)
+    {
+        if (string.Equals(targetSubState, StandStateName, StringComparison.Ordinal) && !grounded)
+        {
+            SwitchToAirSubState(FloatingSubStateName);
+            return;
+        }
+
+        SwitchToGroundSubState(targetSubState);
+    }
+
     private void UpdateJumpVerticalMotion()
     {
         if (!jumpHoldTimer.IsRunning &&
@@ -519,6 +550,7 @@ public class PlayerStateMachine : MonoBehaviour
     private void StartDash()
     {
         _animator.Play(dashAnim);
+        playerAudio.PlayDashAudio();
 
         if (_dashCoroutine != null)
         {
@@ -533,7 +565,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return this.MoveByStep(step, dashDuration, 0.3f);
         _dashCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundSubState(nextState);
+        SwitchToGroundOrFloatingState(nextState);
     }
 
     private void StayDash()
@@ -575,7 +607,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return this.MoveByStep(step, hurtDuration, 0.8f);
         _hurtCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundSubState(nextState);
+        SwitchToGroundOrFloatingState(nextState);
     }
 
     private void StayHurt()
@@ -627,7 +659,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return new WaitForSeconds(attackDuration);
         _attackCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundSubState(nextState);
+        SwitchToGroundOrFloatingState(nextState);
     }
 
     private void ExitAttack()
@@ -672,7 +704,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (grounded)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
         }
         else
         {
@@ -704,7 +736,7 @@ public class PlayerStateMachine : MonoBehaviour
         if (!blockActionChain.IsPlaying)
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
         }
     }
 
@@ -742,7 +774,7 @@ public class PlayerStateMachine : MonoBehaviour
             _ => BlockedHitInfo.Grade == AttackGrade.Light);
 
 
-        // 免伤20%
+        // 免伤
         var LightHitAction = blockActionChain.CreateActionNode(LightHitActionHandler);
 
         // 触发受伤
@@ -797,6 +829,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator BlockCheckAction(MonoBehaviour _)
         {
+            defended = false;
             AdjustAnimatorSpeedForClip(blockAnim, blockDuration);
             _animator.Play(blockAnim);
             tryCatchInfo = true;
@@ -832,6 +865,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             incomingHitInfo = BlockedHitInfo;
             incomingHitInfo.Damage *= 0.8f;
+            defended = true;
             BlockedHitInfo.Clear();
             yield break;
         }
@@ -851,6 +885,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             _animator.SetTrigger(stunBreakParam);
             FlashEffect(flashDuration, blockFlashColor);
+            ExtraBlockEffect();
             yield break;
         }
 
@@ -879,7 +914,7 @@ public class PlayerStateMachine : MonoBehaviour
             var step = KbDir * hurtKbDistance * 0.7f;
             yield return this.MoveByStep(step, hurtDuration, 0.8f);
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-            SwitchToGroundSubState(nextState);
+            SwitchToGroundOrFloatingState(nextState);
             invincibleTimer.StartTimer(0.1f);
         }
 
@@ -903,6 +938,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             AdjustAnimatorSpeedForClip(parryAnim, parrySucceededDuration);
             _animator.Play(parryAnim);
+            ExtraBlockEffect();
             invincibleTimer.StartTimer(parrySucceededDuration + 0.4f);
             StopFlashEffect();
             float elapsed = 0f;
@@ -914,6 +950,13 @@ public class PlayerStateMachine : MonoBehaviour
             ResetAnimatorSpeed();
         }
 
+    }
+
+    private void ExtraBlockEffect()
+    {
+        playerAudio.PlayParryAudio();
+        FreezeFrameManager.Instance.TriggerFreezeFrame();
+        CameraShakeManager.Instance.ShakeStraight(Vector2.left, blockShakeDuration, blockShakeMagnitude);
     }
 
     // ==== 碰撞与击中判断 ==== //
@@ -948,20 +991,22 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
-            if (hitInfo.used || hitInfo.AttackPosition == Position.Friendly) return;
+            if (hitInfo.GetHitResult(gameObject) != HitResult.None || 
+                hitInfo.AttackPosition == Position.Friendly) 
+                return;
             var incoming = hitInfo.GetHitInfo();
             if (tryCatchInfo && HitOnDirection(incoming))
             {
                 Debug.Log("格挡状态下收到攻击");
                 BlockedHitInfo = incoming;
-                hitInfo.used = true;
+                hitInfo.RecordHitObject(gameObject, HitResult.Blocked);
                 incomingHitInfo.Clear();
             }
             else if (!invincibleTimer.IsRunning)
             {
                 Debug.Log("常态下收到攻击");
                 incomingHitInfo = incoming;
-                hitInfo.used = true;
+                hitInfo.RecordHitObject(gameObject, HitResult.Hit);
                 BlockedHitInfo.Clear();
                 ProcessIncomingHit();
             }
@@ -1074,7 +1119,7 @@ public class PlayerStateMachine : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            _material.SetFloat("_flashFactor", Mathf.Lerp(1f, 0f, elapsed / duration));
+            _material.SetFloat("_flashFactor", Mathf.Lerp(colorCoverRate, 0f, elapsed / duration));
             yield return null;
         }
     }
@@ -1099,6 +1144,9 @@ public class PlayerStateMachine : MonoBehaviour
             PlayerHealth.Instance.TakeDamage((int)incomingHitInfo.Damage);
             _stateMachine.TransitionTo("Hurt");
             invincibleTimer.StartTimer(invincibleDuration);
+            if (defended) playerAudio.PlayDefendedAudio();
+            else playerAudio.PlayHurtAudio();
+            defended = false;
         }
     }
 }

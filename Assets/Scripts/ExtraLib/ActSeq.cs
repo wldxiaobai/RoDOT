@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using UnityEngine;
 
 /// <summary>
@@ -17,11 +18,14 @@ public class ActSeq
 
     private Coroutine? activeSequence;
     private MonoBehaviour? currentActor;
+    private bool ended = false;
 
     /// <summary>
     /// 当前是否正在执行图中的动作序列。
     /// </summary>
     public bool IsPlaying => activeSequence != null;
+
+    public bool EndedTrigger => CheckEndedTrigger();
 
     /// <summary>
     /// 图的起点游标，用它开始向外添加节点。
@@ -32,6 +36,53 @@ public class ActSeq
     /// 图的终点游标，可用于将分支/动作直接连接到末尾。
     /// </summary>
     public Cursor End => new(this, endNodeId);
+
+    /// <summary>
+    /// 输出从起点到终点可到达的所有节点类型，便于调试图结构。
+    /// </summary>
+    public void DebugLogNodeSequence()
+    {
+        var builder = new StringBuilder();
+        builder.AppendLine("ActSeq 节点类型序列：");
+        var visited = new HashSet<Guid>();
+        var queue = new Queue<Guid>();
+        queue.Enqueue(startNodeId);
+
+        while (queue.Count > 0)
+        {
+            var nodeId = queue.Dequeue();
+            if (!visited.Add(nodeId))
+            {
+                continue;
+            }
+
+            if (!nodes.TryGetValue(nodeId, out var node))
+            {
+                continue;
+            }
+
+            builder.AppendLine($"{node.Type} ({nodeId})");
+
+            if (node is NodeBase baseNode && baseNode.Next.HasValue && baseNode.Next.Value != Guid.Empty)
+            {
+                queue.Enqueue(baseNode.Next.Value);
+            }
+
+            if (node is ConditionalNode conditional)
+            {
+                if (conditional.NextTrue.HasValue && conditional.NextTrue.Value != Guid.Empty)
+                {
+                    queue.Enqueue(conditional.NextTrue.Value);
+                }
+                if (conditional.NextFalse.HasValue && conditional.NextFalse.Value != Guid.Empty)
+                {
+                    queue.Enqueue(conditional.NextFalse.Value);
+                }
+            }
+        }
+
+        Debug.Log(builder.ToString().TrimEnd());
+    }
 
     public ActSeq()
     {
@@ -88,6 +139,9 @@ public class ActSeq
         newActSeq.currentTailId = mapping.ContainsKey(currentTailId)
             ? mapping[currentTailId]
             : newActSeq.startNodeId;
+
+        newActSeq.startNodeId = mapping[startNodeId];
+        newActSeq.endNodeId = mapping[endNodeId];
     }
 
     /// <summary>
@@ -285,6 +339,7 @@ public class ActSeq
     /// </summary>
     private IEnumerator ActCoroutine(MonoBehaviour actor)
     {
+        ended = false;
         var currentId = startNodeId;
         while (currentId != Guid.Empty)
         {
@@ -304,6 +359,14 @@ public class ActSeq
 
         activeSequence = null;
         currentActor = null;
+        ended = true;
+    }
+
+    private bool CheckEndedTrigger()
+    {
+        var isEnded = ended;
+        ended = false;
+        return isEnded;
     }
 
     private static Guid? MapGuid(Guid? source, IReadOnlyDictionary<Guid, Guid> mapping) =>

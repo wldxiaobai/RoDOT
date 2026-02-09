@@ -12,13 +12,13 @@ TagManager:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Projectile
   - Water
   - UI
   - Fire
   - Block
-  - 
-  - 
+  - Player
+  - NPC
   - 
   - 
   - 
