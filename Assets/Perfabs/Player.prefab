@@ -224,6 +224,7 @@ GameObject:
   - component: {fileID: 3780050423196841125}
   - component: {fileID: 4440635453358921090}
   - component: {fileID: 2302495679727620408}
+  - component: {fileID: 7753180168988694514}
   m_Layer: 8
   m_Name: Player
   m_TagString: Player
@@ -395,6 +396,7 @@ MonoBehaviour:
   floatAnimParam: floating
   stunBreakParam: StopDefend
   flashDuration: 0.2
+  colorCoverRate: 0.66
   hurtFlashColor: {r: 1, g: 0.5, b: 0.5, a: 1}
   blockFlashColor: {r: 0.5, g: 1, b: 1, a: 1}
   parryFlashColor: {r: 1, g: 0.814631, b: 0.5019608, a: 1}
@@ -486,6 +488,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   attack: {fileID: 5175495289002196775}
+--- !u!114 &7753180168988694514
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7582776332695481402}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c3d45de57d3c0947a9b3f73c26fc371, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  jumpAudio: {fileID: 8300000, guid: 97ad8bc24d482194c86ace9f8701e7fe, type: 3}
+  landAudio: {fileID: 8300000, guid: 523f28d0dacd38744a14d2e99136ca49, type: 3}
+  attackAudio: {fileID: 8300000, guid: de34c5230830db742a422bdeb19debb8, type: 3}
+  hurtAudio: {fileID: 8300000, guid: 7c162fbe8ca29314f97359092072b0de, type: 3}
+  deathAudio: {fileID: 8300000, guid: 6d23db6a7aba0da4c802d811d194fd85, type: 3}
+  walkAudio: {fileID: 8300000, guid: 8d574061488cb184cb17c512ee310c68, type: 3}
+  dashAudio: {fileID: 8300000, guid: 57ce493e6e85db94197d6e8fe240b17a, type: 3}
+  defendedAudio: {fileID: 8300000, guid: db2710e70c3681541aaf770e9c963bc9, type: 3}
+  parryAudio: {fileID: 8300000, guid: 89939b1f5e4cc07469570c380340ec99, type: 3}
 --- !u!1 &8934441263178172045
 GameObject:
   m_ObjectHideFlags: 0
