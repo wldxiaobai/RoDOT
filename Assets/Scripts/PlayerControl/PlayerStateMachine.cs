@@ -10,6 +10,8 @@ public class PlayerStateMachine : MonoBehaviour
 {
     // ==== 配置项: Serializable fields ==== //
     [Header("动画参数设置")]
+    [Tooltip("待机动画名")]
+    [SerializeField] private string standAnim = "idle";
     [Tooltip("攻击动画名")]
     [SerializeField] private string attackAnim = "attack";
     [Tooltip("格挡动画名")]
@@ -175,6 +177,7 @@ public class PlayerStateMachine : MonoBehaviour
 
     private bool _skipJumpExitVelocityReset;
     private bool _preserveJumpHoldTimer;
+    private bool defending = false;
     private bool defended = false;
 
     // ==== Unity 生命周期 ==== //
@@ -591,6 +594,7 @@ public class PlayerStateMachine : MonoBehaviour
         GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         FlashEffect(flashDuration, hurtFlashColor);
         _animator.SetTrigger(stunBreakParam);
+        _animator.Play(standAnim);
 
         if (_hurtCoroutine != null)
         {
@@ -607,7 +611,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return this.MoveByStep(step, hurtDuration, 0.8f);
         _hurtCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundOrFloatingState(nextState);
+        SwitchToGroundOrFloatingState(nextState); 
     }
 
     private void StayHurt()
@@ -748,6 +752,7 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     // ==== 格挡动作链构建 ==== //
+
     private void BuildBlockActionChain()
     {
         var startCursor = blockActionChain.Start;
@@ -829,7 +834,6 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator BlockCheckAction(MonoBehaviour _)
         {
-            defended = false;
             AdjustAnimatorSpeedForClip(blockAnim, blockDuration);
             _animator.Play(blockAnim);
             tryCatchInfo = true;
@@ -853,6 +857,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator WaitForReleaseOrHitAction(MonoBehaviour _)
         {
+            defending = true;
             while (Input.GetKey(blockKey) && !BlockedHitInfo.IsValid)
             {
                 yield return null;
@@ -863,9 +868,8 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator LightHitActionHandler(MonoBehaviour _)
         {
-            incomingHitInfo = BlockedHitInfo;
+            incomingHitInfo = BlockedHitInfo.Clone();
             incomingHitInfo.Damage *= 0.8f;
-            defended = true;
             BlockedHitInfo.Clear();
             yield break;
         }
@@ -874,7 +878,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             if (!incomingHitInfo.IsValid && BlockedHitInfo.IsValid)
             {
-                incomingHitInfo = BlockedHitInfo;
+                incomingHitInfo = BlockedHitInfo.Clone();
                 BlockedHitInfo.Clear();
             }
             ProcessIncomingHit();
@@ -884,8 +888,6 @@ public class PlayerStateMachine : MonoBehaviour
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
             _animator.SetTrigger(stunBreakParam);
-            FlashEffect(flashDuration, blockFlashColor);
-            ExtraBlockEffect();
             yield break;
         }
 
@@ -938,7 +940,6 @@ public class PlayerStateMachine : MonoBehaviour
         {
             AdjustAnimatorSpeedForClip(parryAnim, parrySucceededDuration);
             _animator.Play(parryAnim);
-            ExtraBlockEffect();
             invincibleTimer.StartTimer(parrySucceededDuration + 0.4f);
             StopFlashEffect();
             float elapsed = 0f;
@@ -952,11 +953,21 @@ public class PlayerStateMachine : MonoBehaviour
 
     }
 
-    private void ExtraBlockEffect()
+    private void ExtraBlockEffect(bool perfact = true)
     {
-        playerAudio.PlayParryAudio();
-        FreezeFrameManager.Instance.TriggerFreezeFrame();
-        CameraShakeManager.Instance.ShakeStraight(Vector2.left, blockShakeDuration, blockShakeMagnitude);
+        BlockedHitInfo.Origin.RecordHitObject(gameObject, perfact? HitResult.Blocked : HitResult.Hit);
+        if (perfact)
+        {
+            FlashEffect(flashDuration, blockFlashColor);
+            FreezeFrameManager.Instance.TriggerFreezeFrame();
+            CameraShakeManager.Instance.ShakeStraight(Vector2.left, blockShakeDuration, blockShakeMagnitude);
+            playerAudio.PlayParryAudio();
+        }
+        else
+        {
+            playerAudio.PlayDefendedAudio();
+            defended = true;
+        }
     }
 
     // ==== 碰撞与击中判断 ==== //
@@ -999,14 +1010,13 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 Debug.Log("格挡状态下收到攻击");
                 BlockedHitInfo = incoming;
-                hitInfo.RecordHitObject(gameObject, HitResult.Blocked);
                 incomingHitInfo.Clear();
+                ExtraBlockEffect(!defending);
             }
             else if (!invincibleTimer.IsRunning)
             {
                 Debug.Log("常态下收到攻击");
                 incomingHitInfo = incoming;
-                hitInfo.RecordHitObject(gameObject, HitResult.Hit);
                 BlockedHitInfo.Clear();
                 ProcessIncomingHit();
             }
@@ -1139,13 +1149,14 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (incomingHitInfo.IsValid && ActiveState != "Hurt")
         {
+            incomingHitInfo.Origin.RecordHitObject(gameObject, HitResult.Hit);
             string gradeStr = incomingHitInfo.Grade == AttackGrade.Light ? "轻击" : "重击";
             Debug.Log($"玩家受到{incomingHitInfo.Damage}点{gradeStr}伤害");
             PlayerHealth.Instance.TakeDamage((int)incomingHitInfo.Damage);
             _stateMachine.TransitionTo("Hurt");
             invincibleTimer.StartTimer(invincibleDuration);
-            if (defended) playerAudio.PlayDefendedAudio();
-            else playerAudio.PlayHurtAudio();
+            if(!defended) playerAudio.PlayHurtAudio();
+            defending = false;
             defended = false;
         }
     }
