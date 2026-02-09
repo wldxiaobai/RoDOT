@@ -373,7 +373,7 @@ BoxCollider2D:
   m_IsTrigger: 1
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: -17.566668, y: -9.828411}
+  m_Offset: {x: -18, y: -10}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -384,7 +384,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 14.586376, y: 9.952866}
+  m_Size: {x: 13, y: 10}
   m_EdgeRadius: 0
 --- !u!1 &64321411
 GameObject:
@@ -3922,43 +3922,6 @@ SpriteRenderer:
   m_WasSpriteAssigned: 0
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!1 &1091657754 stripped
-GameObject:
-  m_CorrespondingSourceObject: {fileID: 7582776332695481402, guid: 9aa70fc797a61d84eab2cfd4a021246a, type: 3}
-  m_PrefabInstance: {fileID: 1813293405}
-  m_PrefabAsset: {fileID: 0}
---- !u!114 &1091657764
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1091657754}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 476dfec28edb4e545bb0dcefe4b7a742, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  areaList:
-  - areaName: 1
-    triggerColliders:
-    - {fileID: 561147491}
-    targetSprite: {fileID: 56568118}
-    fadeDuration: 0.3
-    activeTriggers: 0
-  - areaName: 2
-    triggerColliders:
-    - {fileID: 800043388}
-    - {fileID: 1016508665}
-    targetSprite: {fileID: 859328376}
-    fadeDuration: 0.3
-    activeTriggers: 0
-  - areaName: 3
-    triggerColliders:
-    - {fileID: 674016238}
-    targetSprite: {fileID: 1456032318}
-    fadeDuration: 0.3
-    activeTriggers: 0
 --- !u!1 &1151576071
 GameObject:
   m_ObjectHideFlags: 0
@@ -5874,10 +5837,7 @@ PrefabInstance:
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
-    m_AddedComponents:
-    - targetCorrespondingSourceObject: {fileID: 7582776332695481402, guid: 9aa70fc797a61d84eab2cfd4a021246a, type: 3}
-      insertIndex: -1
-      addedObject: {fileID: 1091657764}
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 9aa70fc797a61d84eab2cfd4a021246a, type: 3}
 --- !u!1 &1843577768
 GameObject:

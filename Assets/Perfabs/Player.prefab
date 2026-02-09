@@ -105,7 +105,6 @@ MonoBehaviour:
   AttackPosition: 0
   StunDuration: 0.5
   ParryWindow: 0.2
-  used: 0
 --- !u!1 &5175495289002196775
 GameObject:
   m_ObjectHideFlags: 0
@@ -208,7 +207,6 @@ MonoBehaviour:
   AttackPosition: 0
   StunDuration: 0.5
   ParryWindow: 0.2
-  used: 0
 --- !u!1 &7582776332695481402
 GameObject:
   m_ObjectHideFlags: 0
@@ -423,6 +421,8 @@ MonoBehaviour:
   blockDuration: 0.3
   blockSucceededDuration: 0.2
   parrySucceededDuration: 0.4
+  blockShakeDuration: 0.12
+  blockShakeMagnitude: 0.06
   hurtKbDistance: 2
   hurtDuration: 0.2
   invincibleDuration: 1
@@ -589,4 +589,3 @@ MonoBehaviour:
   AttackPosition: 0
   StunDuration: 0.5
   ParryWindow: 0.2
-  used: 0
