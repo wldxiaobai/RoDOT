@@ -94,6 +94,10 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float blockSucceededDuration = 0.6f;
     [Tooltip("弹反成功动作时长")]
     [SerializeField] private float parrySucceededDuration = 0.8f;
+    [Tooltip("格挡震屏持续时长")]
+    [SerializeField] private float blockShakeDuration = 0.16f;
+    [Tooltip("格挡震屏强度")]
+    [SerializeField] private float blockShakeMagnitude = 0.2f;
 
     [Header("受伤")]
     [Tooltip("受伤击退距离")]
@@ -867,7 +871,6 @@ public class PlayerStateMachine : MonoBehaviour
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
             _animator.SetTrigger(stunBreakParam);
-            FlashEffect(flashDuration, blockFlashColor);
             yield break;
         }
 
@@ -975,6 +978,9 @@ public class PlayerStateMachine : MonoBehaviour
                 BlockedHitInfo = incoming;
                 hitInfo.RecordHitObject(gameObject, HitResult.Blocked);
                 incomingHitInfo.Clear();
+                FlashEffect(flashDuration, blockFlashColor);
+                FreezeFrameManager.Instance.TriggerFreezeFrame();
+                CameraShakeManager.Instance.ShakeStraight(Vector2.left, blockShakeDuration, blockShakeMagnitude);
             }
             else if (!invincibleTimer.IsRunning)
             {

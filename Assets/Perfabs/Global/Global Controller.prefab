@@ -115,6 +115,8 @@ GameObject:
   - component: {fileID: 7239134967010268578}
   - component: {fileID: 5876175886574945778}
   - component: {fileID: 1836638730203876995}
+  - component: {fileID: 7853434783797196245}
+  - component: {fileID: 4144658230090119038}
   m_Layer: 0
   m_Name: Global Controller
   m_TagString: Untagged
@@ -194,6 +196,32 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   PlayerPrefab: {fileID: 7582776332695481402, guid: 9aa70fc797a61d84eab2cfd4a021246a, type: 3}
+--- !u!114 &7853434783797196245
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6214065350809417908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56bd7643549ed624fbb0c37c551a3bf9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  defaultFreezeDuration: 0.08
+--- !u!114 &4144658230090119038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6214065350809417908}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 45023a39d78d23145ba876ee89c64482, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cameraTag: MainCamera
 --- !u!1 &8536138579047098203
 GameObject:
   m_ObjectHideFlags: 0
