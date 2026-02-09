@@ -5,6 +5,8 @@ using UnityEngine;
 public class PlayerAudio : MonoBehaviour
 {
     [Header("音效设置")]
+    [Range(0f, 1f)]
+    [SerializeField] private float volume = 1f; // 音量控制
     [SerializeField] private AudioClip jumpAudio; // 跳跃音效
     [SerializeField] private AudioClip landAudio; // 落地音效
     [SerializeField] private AudioClip attackAudio; // 攻击音效
@@ -17,46 +19,57 @@ public class PlayerAudio : MonoBehaviour
 
     public void PlayJumpAudio()
     {
-        AudioSource.PlayClipAtPoint(jumpAudio, transform.position);
+        PlayClip(jumpAudio);
     }
 
     public void PlayLandAudio()
     {
-        AudioSource.PlayClipAtPoint(landAudio, transform.position);
+        PlayClip(landAudio);
     }
 
     public void PlayAttackAudio()
     {
-        AudioSource.PlayClipAtPoint(attackAudio, transform.position);
+        PlayClip(attackAudio);
     }
 
     public void PlayHurtAudio()
     {
-        AudioSource.PlayClipAtPoint(hurtAudio, transform.position);
+        PlayClip(hurtAudio);
     }
 
     public void PlayDeathAudio()
     {
-        AudioSource.PlayClipAtPoint(deathAudio, transform.position);
+        PlayClip(deathAudio);
     }
 
     public void PlayWalkAudio()
     {
-        AudioSource.PlayClipAtPoint(walkAudio, transform.position);
+        PlayClip(walkAudio);
     }
 
     public void PlayDashAudio()
     {
-        AudioSource.PlayClipAtPoint(dashAudio, transform.position);
+        PlayClip(dashAudio);
     }
 
     public void PlayDefendedAudio()
     {
-        AudioSource.PlayClipAtPoint(defendedAudio, transform.position);
+        PlayClip(defendedAudio);
     }
 
     public void PlayParryAudio()
     {
-        AudioSource.PlayClipAtPoint(parryAudio, transform.position);
+        PlayClip(parryAudio);
+    }
+
+    private void PlayClip(AudioClip clip)
+    {
+        if (clip == null)
+        {
+            Debug.LogWarning("PlayerAudio: clip is not assigned.", this);
+            return;
+        }
+
+        AudioManager.PlaySound(clip, transform.position, volume);
     }
 }

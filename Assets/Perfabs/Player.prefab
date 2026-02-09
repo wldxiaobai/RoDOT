@@ -500,6 +500,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c3d45de57d3c0947a9b3f73c26fc371, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  volume: 0.5
   jumpAudio: {fileID: 8300000, guid: 97ad8bc24d482194c86ace9f8701e7fe, type: 3}
   landAudio: {fileID: 8300000, guid: 523f28d0dacd38744a14d2e99136ca49, type: 3}
   attackAudio: {fileID: 8300000, guid: de34c5230830db742a422bdeb19debb8, type: 3}
