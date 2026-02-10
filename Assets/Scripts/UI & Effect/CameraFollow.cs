@@ -226,7 +226,7 @@ public class CameraFollow : MonoBehaviour
         // 如果没有设置目标，尝试查找玩家标签的对象
         if (target == null)
         {
-            target = GlobalPlayer.Instance.Player?.transform;
+            target = GlobalPlayer.Instance?.Player?.transform;
         }
 
         // 如果启用了FixedUpdate同步，在这里处理摄像头跟随
