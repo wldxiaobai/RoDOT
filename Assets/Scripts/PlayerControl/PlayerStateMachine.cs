@@ -30,6 +30,8 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private string floatAnimParam = "floating";
     [Tooltip("中断僵持参数名")]
     [SerializeField] private string stunBreakParam = "StopDefend";
+    [Tooltip("死亡动画名")]
+    [SerializeField] private string deathAnim = "death";
 
     [Header("视效设置")]
     [Tooltip("闪烁特效时长")]
@@ -111,6 +113,8 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float hurtDuration = 0.3f;
     [Tooltip("无敌时间")]
     [SerializeField] private float invincibleDuration = 1f;
+    [Tooltip("死亡动画时长")]
+    [SerializeField] private float deathDuration = 1f;
 
 
 
@@ -124,6 +128,7 @@ public class PlayerStateMachine : MonoBehaviour
     private const string AttackStateName = "Attack";
     private const string AttackGroundSubStateName = "AttackGround";
     private const string AttackFloatSubStateName = "FloatAttack";
+    private const string DeathStateName = "Death";
 
     private Animator _animator;
     private PlayerAudio playerAudio;
@@ -137,6 +142,7 @@ public class PlayerStateMachine : MonoBehaviour
     private Coroutine _attackCoroutine;
     private Coroutine _floatAttackCoroutine;
     private Coroutine _hurtCoroutine;
+    private Coroutine _deathCoroutine;
     private Coroutine _parryFlashCoroutine;
     private ActSeq blockActionChain = new();
     private float _defaultAnimatorSpeed;
@@ -189,6 +195,7 @@ public class PlayerStateMachine : MonoBehaviour
         _defaultAnimatorSpeed = _animator != null ? _animator.speed : 1f;
         BuildStateMachine();
         BuildBlockActionChain();
+        PlayerHealth.Instance.FullHeal();
     }
 
     // ==== Unity 事件 ==== //
@@ -394,13 +401,19 @@ public class PlayerStateMachine : MonoBehaviour
             stay: StayHurt,
             exit: ExitHurt);
 
+        var deathState = new SimpleState(
+            DeathStateName,
+            enter: StartDeath,
+            stay: StayDeath);
+
         _stateMachine
             .RegisterState(groundState, true)
             .RegisterState(airState)
             .RegisterState(dashState)
             .RegisterState(attackState)
             .RegisterState(blockState)
-            .RegisterState(hurtState);
+            .RegisterState(hurtState)
+            .RegisterState(deathState);
     }
 
     // ==== 基础移动状态 ==== //
@@ -610,6 +623,12 @@ public class PlayerStateMachine : MonoBehaviour
         var step = KbDir * hurtKbDistance;
         yield return this.MoveByStep(step, hurtDuration, 0.8f);
         _hurtCoroutine = null;
+        if (PlayerHealth.Instance != null && PlayerHealth.Instance.CurrentHealth <= 0)
+        {
+            _stateMachine?.TransitionTo(DeathStateName);
+            yield break;
+        }
+
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
         SwitchToGroundOrFloatingState(nextState); 
     }
@@ -626,6 +645,74 @@ public class PlayerStateMachine : MonoBehaviour
             _hurtCoroutine = null;
         }
         _animator.ResetTrigger(stunBreakParam);
+    }
+
+    // ==== 死亡逻辑 ==== //
+    private void StartDeath()
+    {
+        StopAllActiveCombatCoroutines();
+        AdjustAnimatorSpeedForClip(deathAnim, deathDuration);
+        _animator.Play(deathAnim, 0, 0);
+
+        if (_deathCoroutine != null)
+        {
+            StopCoroutine(_deathCoroutine);
+        }
+
+        _deathCoroutine = StartCoroutine(DeathRoutine());
+    }
+
+    private void StayDeath()
+    {
+        // Death state holds until routine completes.
+    }
+
+    private IEnumerator DeathRoutine()
+    {
+        var duration = Mathf.Max(0f, deathDuration);
+        if (duration > 0f)
+        {
+            yield return new WaitForSeconds(duration);
+        }
+
+        _deathCoroutine = null;
+        CleanupAfterDeath();
+        SaveManeger.Instance.GameLoad();
+    }
+
+    private void CleanupAfterDeath()
+    {
+        GlobalPlayer.Instance?.ClearPlayerReference(gameObject);
+        Destroy(gameObject);
+    }
+
+    private void StopAllActiveCombatCoroutines()
+    {
+        if (_dashCoroutine != null)
+        {
+            StopCoroutine(_dashCoroutine);
+            _dashCoroutine = null;
+        }
+        if (_attackCoroutine != null)
+        {
+            StopCoroutine(_attackCoroutine);
+            _attackCoroutine = null;
+        }
+        if (_floatAttackCoroutine != null)
+        {
+            StopCoroutine(_floatAttackCoroutine);
+            _floatAttackCoroutine = null;
+        }
+        if (_hurtCoroutine != null)
+        {
+            StopCoroutine(_hurtCoroutine);
+            _hurtCoroutine = null;
+        }
+        if (_deathCoroutine != null)
+        {
+            StopCoroutine(_deathCoroutine);
+            _deathCoroutine = null;
+        }
     }
 
     // ==== 攻击逻辑 ==== //
