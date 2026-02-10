@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
@@ -30,13 +31,31 @@ public class SceneLoader : Globalizer<SceneLoader>
     public IEnumerator LoadSceneAsync(string sceneName)
     {
         fadeImage.enabled = true;
+
+        Debug.Log("正在检查场景: " + sceneName);
+        if (!IsSceneInBuildSettings(sceneName))
+        {
+            Debug.LogError("场景: " + sceneName + " 不在 Build Settings 中! 请确保它已被添加到 Build Settings 的场景列表中。");
+            yield break;
+        }
+        Debug.Log("场景: " + sceneName + " 已在 Build Settings 中，准备加载.");
+
         Debug.Log("开始加载场景: " + sceneName);
         yield return StartCoroutine(Fade(0f, 1f)); // 淡入黑色
         yield return StartCoroutine(LoadSceneCoroutine(sceneName));
-        OnSceneLoad?.Invoke(sceneName);
-        yield return StartCoroutine(Fade(1f, 0f)); // 淡出黑色
-        fadeImage.enabled = false;
-        Debug.Log("场景: " + sceneName + " 加载完成!");
+    }
+
+    public bool IsSceneInBuildSettings(string sceneName)
+    {
+        for (int i = 0; i < SceneManager.sceneCountInBuildSettings; i++)
+        {
+            string scenePath = SceneUtility.GetScenePathByBuildIndex(i);
+            string name = Path.GetFileNameWithoutExtension(scenePath);
+
+            if (name == sceneName)
+                return true;
+        }
+        return false;
     }
 
     IEnumerator Fade(float startAlpha, float endAlpha)
@@ -67,5 +86,9 @@ public class SceneLoader : Globalizer<SceneLoader>
             Debug.Log($"Loading: {progress * 100}%");
             yield return null;
         }
+        OnSceneLoad?.Invoke(sceneName);
+        yield return StartCoroutine(Fade(1f, 0f)); // 淡出黑色
+        fadeImage.enabled = false;
+        Debug.Log("场景: " + sceneName + " 加载完成!");
     }
 }

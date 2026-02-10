@@ -13,6 +13,9 @@ public class SaveManeger : Globalizer<SaveManeger>
     [Header("在以下场景中会生成玩家")]
     [SerializeField] private List<string> spawnPlayerScenes = new List<string>();
 
+    private bool _portalSpawnPending;
+    private Vector2 _portalSpawnPosition;
+
     public SaveData Data { get; set; }
 
     static private SaveData defaultData = new SaveData();
@@ -49,10 +52,20 @@ public class SaveManeger : Globalizer<SaveManeger>
     void SetPlayerPositionOnSceneLoad(string scene)
     {
         // 在加载场景时设置玩家位置
-        if (spawnPlayerScenes.Contains(scene))
+        if (!spawnPlayerScenes.Contains(scene))
         {
-            GlobalPlayer.Instance.SpawnPlayer(Data.PlayerPosition, Quaternion.identity);
+            return;
         }
+
+        var spawnPosition = _portalSpawnPending ? _portalSpawnPosition : Data.PlayerPosition;
+        GlobalPlayer.Instance.SpawnPlayer(spawnPosition, Quaternion.identity);
+        _portalSpawnPending = false;
+    }
+
+    public void SetPortalSpawnPosition(Vector2 position)
+    {
+        _portalSpawnPosition = position;
+        _portalSpawnPending = true;
     }
 
     protected override void OnDestroy()
