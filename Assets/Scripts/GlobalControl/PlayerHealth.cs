@@ -29,6 +29,11 @@ public class PlayerHealth : Globalizer<PlayerHealth>
         healthBar.MaxAmount = newMaxHealth;
     }
 
+    public void FullHeal()
+    {
+        healthBar.CurrentAmount = healthBar.MaxAmount;
+    }
+
     public int MaxHealth
     {
         get { return (int)healthBar.MaxAmount; }
