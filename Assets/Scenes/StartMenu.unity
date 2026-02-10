@@ -1419,6 +1419,22 @@ PrefabInstance:
       propertyPath: m_Name
       value: Global Controller
       objectReference: {fileID: 0}
+    - target: {fileID: 7239134967010268578, guid: 062b11311c9b6754bb6589080ea804a4, type: 3}
+      propertyPath: spawnPlayerScenes.Array.size
+      value: 4
+      objectReference: {fileID: 0}
+    - target: {fileID: 7239134967010268578, guid: 062b11311c9b6754bb6589080ea804a4, type: 3}
+      propertyPath: spawnPlayerScenes.Array.data[1]
+      value: Level2
+      objectReference: {fileID: 0}
+    - target: {fileID: 7239134967010268578, guid: 062b11311c9b6754bb6589080ea804a4, type: 3}
+      propertyPath: spawnPlayerScenes.Array.data[2]
+      value: Level2Boss
+      objectReference: {fileID: 0}
+    - target: {fileID: 7239134967010268578, guid: 062b11311c9b6754bb6589080ea804a4, type: 3}
+      propertyPath: spawnPlayerScenes.Array.data[3]
+      value: Level3
+      objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
     m_AddedGameObjects: []
