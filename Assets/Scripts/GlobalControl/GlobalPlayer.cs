@@ -51,4 +51,14 @@ public class GlobalPlayer : Globalizer<GlobalPlayer>
         Destroy(playerInstance);
         playerInstance = player;
     }
+
+    public void ClearPlayerReference(GameObject player)
+    {
+        if (playerInstance != player)
+        {
+            return;
+        }
+
+        playerInstance = null;
+    }
 }

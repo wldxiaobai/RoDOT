@@ -5,12 +5,14 @@ using UnityEngine;
 [RequireComponent(typeof(Rigidbody2D))]
 public class PatrobotStateMac : BaseEnemy
 {
+    // --- Behaviour State Names ---
     private const string PatrolBehaviourName = "Patrol";
     private const string ChaseBehaviourName = "Chase";
     private const string AttackBehaviourName = "Attack";
     private const string IdleBehaviourName = "Idle";
     private const string HurtBehaviourName = "Hurt";
 
+    // --- Serialized Animation Parameters ---
     [Header("动画参数")]
     [Tooltip("行走动画参数名")]
     [SerializeField] private string walkAnimParam = "IsWalking";
@@ -21,6 +23,7 @@ public class PatrobotStateMac : BaseEnemy
     [Tooltip("结束受击动画参数名")]
     [SerializeField] private string hitAnimEndParam = "StopHurt";
 
+    // --- Visual Effect Configuration ---
     [Header("视效设置")]
     [Tooltip("闪烁特效时长")]
     [SerializeField] private float flashDuration = 0.2f;
@@ -29,6 +32,7 @@ public class PatrobotStateMac : BaseEnemy
     [Tooltip("被格挡闪烁颜色")]
     [SerializeField] private Color blockFlashColor = new(1f, 1f, 1f, 1f);
 
+    // --- Patrol Configuration ---
     [Header("巡逻设置")]
     [Tooltip("巡逻中心相对于初始位置的偏移")]
     [SerializeField] private Vector2 patrolCenterOffset = Vector2.zero;
@@ -37,6 +41,7 @@ public class PatrobotStateMac : BaseEnemy
     [Tooltip("巡逻移动速度")]
     [SerializeField] private float patrolSpeed = 2f;
 
+    // --- Chase and Detection Configuration ---
     [Header("追击与检测")]
     [Tooltip("追击移动速度")]
     [SerializeField] private float chaseSpeed = 3.5f;
@@ -45,6 +50,7 @@ public class PatrobotStateMac : BaseEnemy
     [Tooltip("追击丢失玩家时的范围系数（>=1）")]
     [SerializeField] private float detectionLossMultiplier = 1.25f;
 
+    // --- Attack and Idle Configuration ---
     [Header("攻击与待机")]
     [Tooltip("攻击持续时间")]
     [SerializeField] private float attackDuration = 0.7f;
@@ -57,6 +63,7 @@ public class PatrobotStateMac : BaseEnemy
     [Tooltip("攻击消息接收器")]
     [SerializeField] private AttackHitInfo attackMessageReceiver;
 
+    // --- Block and Hurt Configuration ---
     [Header("被格挡与受伤")]
     [Tooltip("被格挡时后退距离")]
     [SerializeField] private float blockRetreatDistance = 0.5f;
@@ -69,6 +76,7 @@ public class PatrobotStateMac : BaseEnemy
     [Tooltip("受伤后短暂待机时间")]
     [SerializeField] private float hurtIdleAfterRetreat = 0.25f;
 
+    // --- Runtime State ---
     private bool behavioursPrepared;
     private float _desiredVelocityX;
     private float _idleRemaining;
@@ -84,6 +92,15 @@ public class PatrobotStateMac : BaseEnemy
     private Coroutine _flashCoroutine;
     private Material _material;
 
+    // --- Gizmo Colors ---
+    private static readonly Color PatrolRangeColor = new(0.3f, 0.65f, 1f, 1f);
+    private static readonly Color PatrolCenterColor = new(0.5f, 0.85f, 1f, 1f);
+    private static readonly Color DetectionRangeColor = new(1f, 0.85f, 0.2f, 1f);
+    private static readonly Color DetectionLossRangeColor = new(1f, 0.45f, 0.1f, 1f);
+    private static readonly Color AttackFallbackRangeColor = new(1f, 0.2f, 0.2f, 1f);
+    private static readonly Color AttackColliderOverlayColor = new(0.8f, 0f, 0f, 1f);
+
+    // --- Behaviour Accessors ---
     private string CurrentBehaviourName => string.IsNullOrWhiteSpace(_currentBehaviourName)
         ? PatrolBehaviourName
         : _currentBehaviourName;
@@ -98,6 +115,7 @@ public class PatrobotStateMac : BaseEnemy
         return string.Equals(CurrentBehaviourName, behaviourName, StringComparison.Ordinal);
     }
 
+    // --- Cached Components ---
     private Rigidbody2D _rigidbody;
     private SpriteRenderer _spriteRenderer;
     private Transform _playerTransform;
@@ -106,6 +124,7 @@ public class PatrobotStateMac : BaseEnemy
     private Rigidbody2D Rigidbody => _rigidbody != null ? _rigidbody : _rigidbody = GetComponent<Rigidbody2D>();
     private SpriteRenderer SpriteRenderer => _spriteRenderer != null ? _spriteRenderer : _spriteRenderer = GetComponent<SpriteRenderer>();
 
+    // --- Unity Lifecycle ---
     private void OnEnable()
     {
         if (attackMessageReceiver != null)
@@ -151,6 +170,7 @@ public class PatrobotStateMac : BaseEnemy
         }
     }
 
+    // --- Behaviour Management ---
     protected override string DecideNextBehaviour()
     {
         EnsureBehaviours();
@@ -173,6 +193,7 @@ public class PatrobotStateMac : BaseEnemy
         AddBehaviour(HurtBehaviourName, 0f, BuildHurtSequence());
     }
 
+    // --- Behaviour Sequences ---
     private ActSeq BuildPatrolSequence()
     {
         var seq = new ActSeq();
@@ -218,6 +239,7 @@ public class PatrobotStateMac : BaseEnemy
         return seq;
     }
 
+    // --- Patrol Loop ---
     private IEnumerator PatrolLoop(MonoBehaviour _)
     {
         EnsurePatrolCenter();
@@ -251,6 +273,7 @@ public class PatrobotStateMac : BaseEnemy
         yield return null;
     }
 
+    // --- Chase Loop ---
     private IEnumerator ChaseLoop(MonoBehaviour _)
     {
         ResolvePlayerReference();
@@ -285,6 +308,7 @@ public class PatrobotStateMac : BaseEnemy
         yield return null;
     }
 
+    // --- Attack Routine ---
     private IEnumerator AttackRoutine()
     {
         SetBehaviourState(AttackBehaviourName);
@@ -316,6 +340,7 @@ public class PatrobotStateMac : BaseEnemy
         }
     }
 
+    // --- Hurt Routine ---
     private IEnumerator HurtRoutine(MonoBehaviour _)
     {
         Debug.Log($"[{name}] 进入受伤状态");
@@ -375,6 +400,7 @@ public class PatrobotStateMac : BaseEnemy
         yield return null;
     }
 
+    // --- Idle Routine ---
     private IEnumerator IdleRoutine(MonoBehaviour _)
     {
         while (IsCurrentBehaviour(IdleBehaviourName) && _idleRemaining > 0f)
@@ -406,6 +432,7 @@ public class PatrobotStateMac : BaseEnemy
         }
     }
 
+    // --- Block Response ---
     private float DetermineBlockRetreatDirection(GameObject attacker)
     {
         var direction = -_currentDirection;
@@ -471,6 +498,7 @@ public class PatrobotStateMac : BaseEnemy
         }
     }
 
+    // --- Player Tracking ---
     private void AssignPlayer(Transform player)
     {
         _playerTransform = player;
@@ -560,6 +588,7 @@ public class PatrobotStateMac : BaseEnemy
         _patrolCenterInitialized = true;
     }
 
+    // --- Player Reference ---
     private void ResolvePlayerReference()
     {
         var player = GlobalPlayer.Instance?.Player;
@@ -581,6 +610,7 @@ public class PatrobotStateMac : BaseEnemy
         AssignPlayer(player.transform);
     }
 
+    // --- Damage Handling ---
     protected override void OnHitByPlayerAttack(HitInfo incoming)
     {
         base.OnHitByPlayerAttack(incoming);
@@ -593,6 +623,7 @@ public class PatrobotStateMac : BaseEnemy
         SetBehaviourState(HurtBehaviourName);
     }
 
+    // --- Blocked Attack Handling ---
     private void HandleAttackBlocked(GameObject attacker)
     {
         EnsureBehaviours();
@@ -607,7 +638,7 @@ public class PatrobotStateMac : BaseEnemy
         _blockRetreatCoroutine = StartCoroutine(RunBlockRetreat(retreatDirection));
     }
 
-    // 闪烁特效
+    // --- Visual Effects ---
     private void FlashEffect(float duration, Color color)
     {
         _flashCoroutine = StartCoroutine(FlashEffectCoroutine(duration, color));
@@ -635,6 +666,71 @@ public class PatrobotStateMac : BaseEnemy
         _material.SetFloat("_flashFactor", 0f);
     }
 
+    // --- Debug Visualization ---
+    private void OnDrawGizmos()
+    {
+        DrawPatrolGizmos();
+        DrawDetectionGizmos();
+        DrawAttackGizmos();
+    }
+
+    private void DrawPatrolGizmos()
+    {
+        var center = (Vector2)transform.position + patrolCenterOffset;
+        if (patrolRange > 0f)
+        {
+            Gizmos.color = PatrolRangeColor;
+            Gizmos.DrawWireSphere(center, patrolRange);
+        }
+
+        Gizmos.color = PatrolCenterColor;
+        DrawCross(center, 0.15f);
+    }
+
+    private void DrawDetectionGizmos()
+    {
+        if (detectionRange <= 0f)
+        {
+            return;
+        }
+
+        var center = transform.position;
+        Gizmos.color = DetectionRangeColor;
+        Gizmos.DrawWireSphere(center, detectionRange);
+
+        var lossRange = detectionRange * detectionLossMultiplier;
+        if (lossRange > detectionRange)
+        {
+            Gizmos.color = DetectionLossRangeColor;
+            Gizmos.DrawWireSphere(center, lossRange);
+        }
+    }
+
+    private void DrawAttackGizmos()
+    {
+        var fallback = Mathf.Max(0f, fallbackAttackRange);
+        if (fallback > 0f)
+        {
+            Gizmos.color = AttackFallbackRangeColor;
+            Gizmos.DrawWireSphere(transform.position, fallback);
+        }
+
+        if (attackRangeCollider != null)
+        {
+            Gizmos.color = AttackColliderOverlayColor;
+            var bounds = attackRangeCollider.bounds;
+            Gizmos.DrawWireCube(bounds.center, bounds.size);
+        }
+    }
+
+    private void DrawCross(Vector3 center, float size)
+    {
+        var half = size * 0.5f;
+        Gizmos.DrawLine(center + Vector3.left * half, center + Vector3.right * half);
+        Gizmos.DrawLine(center + Vector3.up * half, center + Vector3.down * half);
+    }
+
+    // --- Validation ---
     private void OnValidate()
     {
         patrolRange = Mathf.Max(0f, patrolRange);
