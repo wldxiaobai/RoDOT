@@ -100,7 +100,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7a124cba6d8fcd4c9e29e1c5c8aa286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 1
+  Damage: 12
   Grade: 0
   AttackPosition: 0
   StunDuration: 0.5
@@ -202,7 +202,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7a124cba6d8fcd4c9e29e1c5c8aa286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 1
+  Damage: 12
   Grade: 0
   AttackPosition: 0
   StunDuration: 0.5
@@ -386,6 +386,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 88ddbcaa3aaa834419d6513c2667f467, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  standAnim: idle
   attackAnim: attack
   blockAnim: block
   dashAnim: dash
@@ -395,6 +396,7 @@ MonoBehaviour:
   walkAnimParam: walking
   floatAnimParam: floating
   stunBreakParam: StopDefend
+  deathAnim: death
   flashDuration: 0.2
   colorCoverRate: 0.66
   hurtFlashColor: {r: 1, g: 0.5, b: 0.5, a: 1}
@@ -417,7 +419,7 @@ MonoBehaviour:
   shortHopFactor: 0.1
   gravity: 24
   attackInputBuffer: 0.1
-  attackDuration: 0.2
+  attackDuration: 0.35
   floatAttackDuration: 0.2
   blockInputBuffer: 0.15
   blockDuration: 0.3
@@ -428,6 +430,8 @@ MonoBehaviour:
   hurtKbDistance: 2
   hurtDuration: 0.2
   invincibleDuration: 1
+  deathDuration: 1
+  blockIncreaseSharpness: 15
 --- !u!95 &4455229661660741923
 Animator:
   serializedVersion: 5
@@ -608,7 +612,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7a124cba6d8fcd4c9e29e1c5c8aa286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 1
+  Damage: 5
   Grade: 0
   AttackPosition: 0
   StunDuration: 0.5

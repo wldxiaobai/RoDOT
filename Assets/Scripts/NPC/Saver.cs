@@ -18,6 +18,13 @@ public class Saver : MonoBehaviour
     [Tooltip("旗帜物体")]
     [SerializeField] private GameObject flagPerfab;
 
+    [Header("音频设置")]
+    [Range(0f, 1f)]
+    [Tooltip("磨刀音效音量")]
+    [SerializeField] private float sharpnessSoundVolume = 0.8f;
+    [Tooltip("磨刀音效")]
+    [SerializeField] private AudioClip sharpnessSound;
+
     private SpriteRenderer spriteRenderer;
     private Material material;
     private string currentSceneName;
@@ -44,6 +51,9 @@ public class Saver : MonoBehaviour
                 hitInfo.AttackPosition != Position.Friendly)
                 return;
 
+            Sharpness.Instance.FullSharpness(); // 恢复锐利度
+            PlayerHealth.Instance.FullHeal(); // 恢复生命值
+            AudioManager.PlaySound(sharpnessSound, transform.position, sharpnessSoundVolume); // 播放磨刀音效
             var incoming = hitInfo.GetHitInfo();
             if (incoming.IsValid)
             {
