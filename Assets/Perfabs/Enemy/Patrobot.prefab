@@ -95,7 +95,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b7a124cba6d8fcd4c9e29e1c5c8aa286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 1
+  Damage: 5
   Grade: 0
   AttackPosition: 2
   StunDuration: 0.5
@@ -312,7 +312,6 @@ MonoBehaviour:
   chaseSpeed: 4
   detectionRange: 4
   detectionLossMultiplier: 1.25
-  playerTag: Player
   attackDuration: 0.7
   idleDuration: 0.3
   attackRangeCollider: {fileID: 4762798378398927733}
