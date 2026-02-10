@@ -10,6 +10,8 @@ public class PlayerStateMachine : MonoBehaviour
 {
     // ==== 配置项: Serializable fields ==== //
     [Header("动画参数设置")]
+    [Tooltip("待机动画名")]
+    [SerializeField] private string standAnim = "idle";
     [Tooltip("攻击动画名")]
     [SerializeField] private string attackAnim = "attack";
     [Tooltip("格挡动画名")]
@@ -32,6 +34,9 @@ public class PlayerStateMachine : MonoBehaviour
     [Header("视效设置")]
     [Tooltip("闪烁特效时长")]
     [SerializeField] private float flashDuration = 0.2f;
+    [Tooltip("闪烁颜色覆盖程度")]
+    [Range(0f, 1f)]
+    [SerializeField] private float colorCoverRate = 1f;
     [Tooltip("受伤闪烁颜色")]
     [SerializeField] private Color hurtFlashColor = new(1f, 0.5f, 0.5f, 1f);
     [Tooltip("格挡闪烁颜色")]
@@ -94,6 +99,10 @@ public class PlayerStateMachine : MonoBehaviour
     [SerializeField] private float blockSucceededDuration = 0.6f;
     [Tooltip("弹反成功动作时长")]
     [SerializeField] private float parrySucceededDuration = 0.8f;
+    [Tooltip("格挡震屏持续时长")]
+    [SerializeField] private float blockShakeDuration = 0.16f;
+    [Tooltip("格挡震屏强度")]
+    [SerializeField] private float blockShakeMagnitude = 0.2f;
 
     [Header("受伤")]
     [Tooltip("受伤击退距离")]
@@ -117,6 +126,7 @@ public class PlayerStateMachine : MonoBehaviour
     private const string AttackFloatSubStateName = "FloatAttack";
 
     private Animator _animator;
+    private PlayerAudio playerAudio;
     private HierarchicalStateMachine _stateMachine;
     private HierarchicalStateMachine _groundMovementState;
     private HierarchicalStateMachine _airMovementState;
@@ -167,6 +177,8 @@ public class PlayerStateMachine : MonoBehaviour
 
     private bool _skipJumpExitVelocityReset;
     private bool _preserveJumpHoldTimer;
+    private bool defending = false;
+    private bool defended = false;
 
     // ==== Unity 生命周期 ==== //
     private void Awake()
@@ -193,6 +205,10 @@ public class PlayerStateMachine : MonoBehaviour
         {
             // 确保GlobalPlayer引用当前玩家对象
             GlobalPlayer.Instance.AcceptPlayerObject(gameObject);
+        }
+        if(playerAudio == null)
+        {
+            playerAudio = GetComponent<PlayerAudio>();
         }
 
         jumpHoldTimer.Update();
@@ -447,6 +463,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
             SwitchToGroundOrFloatingState(nextState);
+            playerAudio.PlayLandAudio();
         }
     }
 
@@ -536,6 +553,7 @@ public class PlayerStateMachine : MonoBehaviour
     private void StartDash()
     {
         _animator.Play(dashAnim);
+        playerAudio.PlayDashAudio();
 
         if (_dashCoroutine != null)
         {
@@ -576,6 +594,7 @@ public class PlayerStateMachine : MonoBehaviour
         GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         FlashEffect(flashDuration, hurtFlashColor);
         _animator.SetTrigger(stunBreakParam);
+        _animator.Play(standAnim);
 
         if (_hurtCoroutine != null)
         {
@@ -592,7 +611,7 @@ public class PlayerStateMachine : MonoBehaviour
         yield return this.MoveByStep(step, hurtDuration, 0.8f);
         _hurtCoroutine = null;
         var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
-        SwitchToGroundOrFloatingState(nextState);
+        SwitchToGroundOrFloatingState(nextState); 
     }
 
     private void StayHurt()
@@ -733,6 +752,7 @@ public class PlayerStateMachine : MonoBehaviour
     }
 
     // ==== 格挡动作链构建 ==== //
+
     private void BuildBlockActionChain()
     {
         var startCursor = blockActionChain.Start;
@@ -759,7 +779,7 @@ public class PlayerStateMachine : MonoBehaviour
             _ => BlockedHitInfo.Grade == AttackGrade.Light);
 
 
-        // 免伤20%
+        // 免伤
         var LightHitAction = blockActionChain.CreateActionNode(LightHitActionHandler);
 
         // 触发受伤
@@ -837,6 +857,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator WaitForReleaseOrHitAction(MonoBehaviour _)
         {
+            defending = true;
             while (Input.GetKey(blockKey) && !BlockedHitInfo.IsValid)
             {
                 yield return null;
@@ -847,7 +868,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator LightHitActionHandler(MonoBehaviour _)
         {
-            incomingHitInfo = BlockedHitInfo;
+            incomingHitInfo = BlockedHitInfo.Clone();
             incomingHitInfo.Damage *= 0.8f;
             BlockedHitInfo.Clear();
             yield break;
@@ -857,7 +878,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             if (!incomingHitInfo.IsValid && BlockedHitInfo.IsValid)
             {
-                incomingHitInfo = BlockedHitInfo;
+                incomingHitInfo = BlockedHitInfo.Clone();
                 BlockedHitInfo.Clear();
             }
             ProcessIncomingHit();
@@ -867,7 +888,6 @@ public class PlayerStateMachine : MonoBehaviour
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
             _animator.SetTrigger(stunBreakParam);
-            FlashEffect(flashDuration, blockFlashColor);
             yield break;
         }
 
@@ -933,6 +953,23 @@ public class PlayerStateMachine : MonoBehaviour
 
     }
 
+    private void ExtraBlockEffect(bool perfact = true)
+    {
+        BlockedHitInfo.Origin.RecordHitObject(gameObject, perfact? HitResult.Blocked : HitResult.Hit);
+        if (perfact)
+        {
+            FlashEffect(flashDuration, blockFlashColor);
+            FreezeFrameManager.Instance.TriggerFreezeFrame();
+            CameraShakeManager.Instance.ShakeStraight(Vector2.left, blockShakeDuration, blockShakeMagnitude);
+            playerAudio.PlayParryAudio();
+        }
+        else
+        {
+            playerAudio.PlayDefendedAudio();
+            defended = true;
+        }
+    }
+
     // ==== 碰撞与击中判断 ==== //
     private void TryRegisterGroundContact(Collision2D collision)
     {
@@ -973,14 +1010,13 @@ public class PlayerStateMachine : MonoBehaviour
             {
                 Debug.Log("格挡状态下收到攻击");
                 BlockedHitInfo = incoming;
-                hitInfo.RecordHitObject(gameObject, HitResult.Blocked);
                 incomingHitInfo.Clear();
+                ExtraBlockEffect(!defending);
             }
             else if (!invincibleTimer.IsRunning)
             {
                 Debug.Log("常态下收到攻击");
                 incomingHitInfo = incoming;
-                hitInfo.RecordHitObject(gameObject, HitResult.Hit);
                 BlockedHitInfo.Clear();
                 ProcessIncomingHit();
             }
@@ -1093,7 +1129,7 @@ public class PlayerStateMachine : MonoBehaviour
         while (elapsed < duration)
         {
             elapsed += Time.deltaTime;
-            _material.SetFloat("_flashFactor", Mathf.Lerp(1f, 0f, elapsed / duration));
+            _material.SetFloat("_flashFactor", Mathf.Lerp(colorCoverRate, 0f, elapsed / duration));
             yield return null;
         }
     }
@@ -1113,11 +1149,15 @@ public class PlayerStateMachine : MonoBehaviour
     {
         if (incomingHitInfo.IsValid && ActiveState != "Hurt")
         {
+            incomingHitInfo.Origin.RecordHitObject(gameObject, HitResult.Hit);
             string gradeStr = incomingHitInfo.Grade == AttackGrade.Light ? "轻击" : "重击";
             Debug.Log($"玩家受到{incomingHitInfo.Damage}点{gradeStr}伤害");
             PlayerHealth.Instance.TakeDamage((int)incomingHitInfo.Damage);
             _stateMachine.TransitionTo("Hurt");
             invincibleTimer.StartTimer(invincibleDuration);
+            if(!defended) playerAudio.PlayHurtAudio();
+            defending = false;
+            defended = false;
         }
     }
 }

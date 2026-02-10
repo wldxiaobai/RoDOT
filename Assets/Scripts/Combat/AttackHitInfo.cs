@@ -34,15 +34,14 @@ public class AttackHitInfo : MonoBehaviour
 
     public HitInfo GetHitInfo()
     {
-        return new HitInfo
+        return new HitInfo(this)
         {
             Damage = Damage,
             Grade = Grade,
             AttackPosition = AttackPosition,
             StunDuration = StunDuration,
             ParryWindow = ParryWindow,
-            Source = Source,
-            Origin = this
+            Source = Source
         };
     }
 
@@ -71,16 +70,43 @@ public class AttackHitInfo : MonoBehaviour
     }
 }
 
-public struct HitInfo
+public sealed class HitInfo
 {
-    public bool IsValid => Source != null;
+    public bool IsValid => Source != null && Origin != null;
     public float Damage;
     public AttackGrade Grade;
     public Position AttackPosition;
     public float StunDuration;
     public float ParryWindow;
     public GameObject Source;
-    public AttackHitInfo Origin;
+    public AttackHitInfo Origin { get; private set; }
+
+    public HitInfo()
+    {
+    }
+
+    public HitInfo(AttackHitInfo origin)
+    {
+        Origin = origin;
+    }
+
+    public HitInfo Clone()
+    {
+        return new HitInfo(Origin)
+        {
+            Damage = Damage,
+            Grade = Grade,
+            AttackPosition = AttackPosition,
+            StunDuration = StunDuration,
+            ParryWindow = ParryWindow,
+            Source = Source
+        };
+    }
+
+    public void SetOrigin(AttackHitInfo origin)
+    {
+        Origin = origin;
+    }
 
     public void Clear()
     {

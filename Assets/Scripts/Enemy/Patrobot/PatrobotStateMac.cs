@@ -26,6 +26,8 @@ public class PatrobotStateMac : BaseEnemy
     [SerializeField] private float flashDuration = 0.2f;
     [Tooltip("受伤闪烁颜色")]
     [SerializeField] private Color hurtFlashColor = new(1f, 0.5f, 0.5f, 1f);
+    [Tooltip("被格挡闪烁颜色")]
+    [SerializeField] private Color blockFlashColor = new(1f, 1f, 1f, 1f);
 
     [Header("巡逻设置")]
     [Tooltip("巡逻中心相对于初始位置的偏移")]
@@ -42,8 +44,6 @@ public class PatrobotStateMac : BaseEnemy
     [SerializeField] private float detectionRange = 5f;
     [Tooltip("追击丢失玩家时的范围系数（>=1）")]
     [SerializeField] private float detectionLossMultiplier = 1.25f;
-    [Tooltip("备用查找玩家的标签")]
-    [SerializeField] private string playerTag = "Player";
 
     [Header("攻击与待机")]
     [Tooltip("攻击持续时间")]
@@ -54,8 +54,14 @@ public class PatrobotStateMac : BaseEnemy
     [SerializeField] private Collider2D attackRangeCollider;
     [Tooltip("未配置攻击碰撞体的近战距离")]
     [SerializeField] private float fallbackAttackRange = 1.2f;
+    [Tooltip("攻击消息接收器")]
+    [SerializeField] private AttackHitInfo attackMessageReceiver;
 
-    [Header("受伤设置")]
+    [Header("被格挡与受伤")]
+    [Tooltip("被格挡时后退距离")]
+    [SerializeField] private float blockRetreatDistance = 0.5f;
+    [Tooltip("被格挡时后退时长")]
+    [SerializeField] private float blockRetreatDuration = 0.3f;
     [Tooltip("受伤后后退持续时间")]
     [SerializeField] private float hurtRetreatDuration = 0.5f;
     [Tooltip("受伤后后退移动速度")]
@@ -68,6 +74,9 @@ public class PatrobotStateMac : BaseEnemy
     private float _idleRemaining;
     private float _hurtRetreatRemaining;
     private bool _blockChaseDuringHurtIdle;
+    private float _postHurtIdleDuration;
+    private bool _blockChaseAfterHurt;
+    private Coroutine _blockRetreatCoroutine;
     private float _currentDirection = 1f;
     private Vector2 _patrolCenter;
     private bool _patrolCenterInitialized;
@@ -97,9 +106,27 @@ public class PatrobotStateMac : BaseEnemy
     private Rigidbody2D Rigidbody => _rigidbody != null ? _rigidbody : _rigidbody = GetComponent<Rigidbody2D>();
     private SpriteRenderer SpriteRenderer => _spriteRenderer != null ? _spriteRenderer : _spriteRenderer = GetComponent<SpriteRenderer>();
 
+    private void OnEnable()
+    {
+        if (attackMessageReceiver != null)
+        {
+            attackMessageReceiver.OnBlocked += HandleAttackBlocked;
+        }
+    }
+
+    private void OnDisable()
+    {
+        if (attackMessageReceiver != null)
+        {
+            attackMessageReceiver.OnBlocked -= HandleAttackBlocked;
+        }
+    }
+
     protected override void EnemyInit()
     {
         _material = GetComponent<SpriteRenderer>().material;
+        _postHurtIdleDuration = hurtIdleAfterRetreat;
+        _blockChaseAfterHurt = true;
     }
 
     private void FixedUpdate()
@@ -116,6 +143,7 @@ public class PatrobotStateMac : BaseEnemy
 
     private void LateUpdate()
     {
+        ResolvePlayerReference();
         var running = IsCurrentBehaviour(PatrolBehaviourName) || IsCurrentBehaviour(ChaseBehaviourName);
         if (Animator != null && !string.IsNullOrWhiteSpace(walkAnimParam))
         {
@@ -273,10 +301,10 @@ public class PatrobotStateMac : BaseEnemy
             yield return null;
         }
 
-        if (!IsCurrentBehaviour(HurtBehaviourName))
+        if (!IsCurrentBehaviour(HurtBehaviourName) && _blockRetreatCoroutine == null)
         {
             _idleRemaining = Mathf.Max(0f, idleDuration);
-            _blockChaseDuringHurtIdle = false;
+            _blockChaseDuringHurtIdle = true;
             if (_idleRemaining > 0f)
             {
                 SetBehaviourState(IdleBehaviourName);
@@ -293,7 +321,8 @@ public class PatrobotStateMac : BaseEnemy
         Debug.Log($"[{name}] 进入受伤状态");
         Animator?.Play(hitAnimName);
         ResolvePlayerReference();
-        FlashEffect(Mathf.Max(0f, flashDuration), hurtFlashColor);
+        var flashColor = hurtFlashColor;
+        FlashEffect(Mathf.Max(0f, flashDuration), flashColor);
 
         while (IsCurrentBehaviour(HurtBehaviourName))
         {
@@ -321,11 +350,11 @@ public class PatrobotStateMac : BaseEnemy
                 if (_hurtRetreatRemaining <= 0f)
                 {
                     _desiredVelocityX = 0f;
-                    var idleTime = Mathf.Max(0f, hurtIdleAfterRetreat);
+                    var idleTime = Mathf.Max(0f, _postHurtIdleDuration);
                     if (idleTime > 0f)
                     {
                         _idleRemaining = idleTime;
-                        _blockChaseDuringHurtIdle = true;
+                        _blockChaseDuringHurtIdle = _blockChaseAfterHurt;
                         SetBehaviourState(IdleBehaviourName);
                     }
                     else
@@ -359,15 +388,12 @@ public class PatrobotStateMac : BaseEnemy
             _desiredVelocityX = 0f;
             _idleRemaining -= Time.deltaTime;
 
-            if (_blockChaseDuringHurtIdle)
+            if (_blockChaseDuringHurtIdle && _idleRemaining <= 0f)
             {
-                if (_idleRemaining <= 0f)
-                {
-                    _blockChaseDuringHurtIdle = false;
-                    SetBehaviourState(PatrolBehaviourName);
-                }
+                _blockChaseDuringHurtIdle = false;
             }
-            else if (ShouldStartChase())
+
+            if (!_blockChaseDuringHurtIdle && ShouldStartChase())
             {
                 SetBehaviourState(ChaseBehaviourName);
             }
@@ -377,6 +403,71 @@ public class PatrobotStateMac : BaseEnemy
             }
 
             yield return null;
+        }
+    }
+
+    private float DetermineBlockRetreatDirection(GameObject attacker)
+    {
+        var direction = -_currentDirection;
+        if (attacker != null)
+        {
+            var deltaX = transform.position.x - attacker.transform.position.x;
+            if (!Mathf.Approximately(deltaX, 0f))
+            {
+                direction = Mathf.Sign(deltaX);
+            }
+        }
+
+        if (Mathf.Approximately(direction, 0f))
+        {
+            direction = -_currentDirection;
+        }
+
+        return direction;
+    }
+
+    private IEnumerator RunBlockRetreat(float retreatDirection)
+    {
+        var duration = Mathf.Max(0f, blockRetreatDuration);
+        var start = Rigidbody.position;
+        var target = start + Vector2.right * retreatDirection * blockRetreatDistance;
+        _currentDirection = retreatDirection;
+        ApplyFacing(-retreatDirection);
+
+        if (duration <= 0f)
+        {
+            Rigidbody.MovePosition(target);
+            _blockRetreatCoroutine = null;
+            FinishBlockRetreat();
+            yield break;
+        }
+
+        var elapsed = 0f;
+        while (elapsed < duration)
+        {
+            elapsed += Time.deltaTime;
+            var t = Mathf.Clamp01(elapsed / duration);
+            var next = Vector2.Lerp(start, target, t);
+            Rigidbody.MovePosition(next);
+            yield return null;
+        }
+
+        _blockRetreatCoroutine = null;
+        FinishBlockRetreat();
+    }
+
+    private void FinishBlockRetreat()
+    {
+        _idleRemaining = Mathf.Max(0f, idleDuration);
+        _blockChaseDuringHurtIdle = true;
+        _desiredVelocityX = 0f;
+        if (_idleRemaining > 0f)
+        {
+            SetBehaviourState(IdleBehaviourName);
+        }
+        else
+        {
+            SetBehaviourState(PatrolBehaviourName);
         }
     }
 
@@ -471,36 +562,49 @@ public class PatrobotStateMac : BaseEnemy
 
     private void ResolvePlayerReference()
     {
-        if (_playerTransform != null)
+        var player = GlobalPlayer.Instance?.Player;
+        if (player == null)
         {
-            return;
-        }
-
-        var playerState = FindObjectOfType<PlayerStateMachine>();
-        if (playerState != null)
-        {
-            AssignPlayer(playerState.transform);
-            return;
-        }
-
-        if (!string.IsNullOrWhiteSpace(playerTag))
-        {
-            var candidate = GameObject.FindGameObjectWithTag(playerTag);
-            if (candidate != null)
+            if (_playerTransform != null)
             {
-                AssignPlayer(candidate.transform);
+                _playerTransform = null;
+                _playerCollider = null;
             }
+            return;
         }
+
+        if (_playerTransform == player.transform)
+        {
+            return;
+        }
+
+        AssignPlayer(player.transform);
     }
 
     protected override void OnHitByPlayerAttack(HitInfo incoming)
     {
         base.OnHitByPlayerAttack(incoming);
         EnsureBehaviours();
+        _postHurtIdleDuration = Mathf.Max(0f, hurtIdleAfterRetreat);
+        _blockChaseAfterHurt = true;
 
         _hurtRetreatRemaining = Mathf.Max(0f, hurtRetreatDuration);
         StartInvincibleTimer(_hurtRetreatRemaining);
         SetBehaviourState(HurtBehaviourName);
+    }
+
+    private void HandleAttackBlocked(GameObject attacker)
+    {
+        EnsureBehaviours();
+        if (_blockRetreatCoroutine != null)
+        {
+            StopCoroutine(_blockRetreatCoroutine);
+            _blockRetreatCoroutine = null;
+        }
+
+        FlashEffect(Mathf.Max(0f, flashDuration), blockFlashColor);
+        var retreatDirection = DetermineBlockRetreatDirection(attacker);
+        _blockRetreatCoroutine = StartCoroutine(RunBlockRetreat(retreatDirection));
     }
 
     // 闪烁特效
