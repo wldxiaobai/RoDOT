@@ -34,14 +34,19 @@ public class AttackHitInfo : MonoBehaviour
 
     public HitInfo GetHitInfo()
     {
+        var multiplier = Sharpness.IsInitialized ? Sharpness.Instance.GetDamageMultiplier() : 1f;
+        var adjustedDamage = Damage * multiplier;
+        var sourcePosition = transform.position;
+
         return new HitInfo(this)
         {
-            Damage = Damage,
+            Damage = adjustedDamage,
             Grade = Grade,
             AttackPosition = AttackPosition,
             StunDuration = StunDuration,
             ParryWindow = ParryWindow,
-            Source = Source
+            Source = Source,
+            SourcePosition = sourcePosition
         };
     }
 
@@ -79,6 +84,7 @@ public sealed class HitInfo
     public float StunDuration;
     public float ParryWindow;
     public GameObject Source;
+    public Vector3 SourcePosition;
     public AttackHitInfo Origin { get; private set; }
 
     public HitInfo()
@@ -99,7 +105,8 @@ public sealed class HitInfo
             AttackPosition = AttackPosition,
             StunDuration = StunDuration,
             ParryWindow = ParryWindow,
-            Source = Source
+            Source = Source,
+            SourcePosition = SourcePosition
         };
     }
 
@@ -117,5 +124,6 @@ public sealed class HitInfo
         ParryWindow = 0f;
         Source = null;
         Origin = null;
+        SourcePosition = Vector3.zero;
     }
 }

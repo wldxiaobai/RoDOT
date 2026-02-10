@@ -297,7 +297,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   needEntrance: 0
   destroyOnDeath: 1
-  maxHP: 5
+  maxHP: 25
   enemyName: Enemy
   walkAnimParam: IsWalking
   attackAnimName: attack

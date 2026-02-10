@@ -49,6 +49,12 @@ public class SaveManeger : Globalizer<SaveManeger>
         StartCoroutine(SceneLoader.Instance.LoadSceneAsync(Data.SceneName));
     }
 
+    public bool HasSaveData()
+    {
+        var path = Application.persistentDataPath + "/save.json";
+        return System.IO.File.Exists(path);
+    }
+
     void SetPlayerPositionOnSceneLoad(string scene)
     {
         // 在加载场景时设置玩家位置

@@ -116,7 +116,9 @@ public class PlayerStateMachine : MonoBehaviour
     [Tooltip("死亡动画时长")]
     [SerializeField] private float deathDuration = 1f;
 
-
+    [Header("锋利度效果")]
+    [Tooltip("格挡回复锋利")]
+    [SerializeField] private float blockIncreaseSharpness = 15.0f;
 
     // ==== 内部状态数据 ==== //
     private const string GroundStateName = "Ground";
@@ -196,6 +198,8 @@ public class PlayerStateMachine : MonoBehaviour
         BuildStateMachine();
         BuildBlockActionChain();
         PlayerHealth.Instance.FullHeal();
+        PlayerHealth.Instance.ActivateHealthBar(true);
+        Sharpness.Instance.ActivateSharpnessBar(true);
     }
 
     // ==== Unity 事件 ==== //
@@ -683,6 +687,8 @@ public class PlayerStateMachine : MonoBehaviour
     private void CleanupAfterDeath()
     {
         GlobalPlayer.Instance?.ClearPlayerReference(gameObject);
+        PlayerHealth.Instance.ActivateHealthBar(false);
+        Sharpness.Instance.ActivateSharpnessBar(false);
         Destroy(gameObject);
     }
 
@@ -921,6 +927,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator BlockCheckAction(MonoBehaviour _)
         {
+            defending = false;
             AdjustAnimatorSpeedForClip(blockAnim, blockDuration);
             _animator.Play(blockAnim);
             tryCatchInfo = true;
@@ -974,6 +981,7 @@ public class PlayerStateMachine : MonoBehaviour
 
         IEnumerator SuccessfulBlockAction(MonoBehaviour _)
         {
+            Sharpness.Instance.IncreaseSharpness(blockIncreaseSharpness);
             _animator.SetTrigger(stunBreakParam);
             yield break;
         }
@@ -982,6 +990,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             _animator.Play(defendAnim);
             invincibleTimer.StartTimer(BlockedHitInfo.StunDuration + BlockedHitInfo.ParryWindow + 0.1f);
+            Sharpness.Instance.IncreaseSharpness(blockIncreaseSharpness);
             tryCatchInfo = false;
             float elapsed = 0f;
             while (elapsed < BlockedHitInfo.StunDuration)
@@ -999,7 +1008,10 @@ public class PlayerStateMachine : MonoBehaviour
         IEnumerator ParryFailStunAction(MonoBehaviour _)
         {
             _animator.SetTrigger(stunBreakParam);
-            var KbDir = (Vector2)(transform.position - BlockedHitInfo.Source.transform.position).normalized;
+            var sourcePosition = BlockedHitInfo.Source != null
+                ? BlockedHitInfo.Source.transform.position
+                : BlockedHitInfo.SourcePosition;
+            var KbDir = (Vector2)(transform.position - sourcePosition).normalized;
             var step = KbDir * hurtKbDistance * 0.7f;
             yield return this.MoveByStep(step, hurtDuration, 0.8f);
             var nextState = _movementInput == Vector2.zero ? StandStateName : WalkStateName;
