@@ -1102,7 +1102,8 @@ public class PlayerStateMachine : MonoBehaviour
         if (other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
             if (hitInfo.GetHitResult(gameObject) != HitResult.None || 
-                hitInfo.AttackPosition == Position.Friendly) 
+                hitInfo.AttackPosition == Position.Friendly ||
+                hitInfo.AttackPosition == Position.None) 
                 return;
             var incoming = hitInfo.GetHitInfo();
             if (tryCatchInfo && HitOnDirection(incoming))

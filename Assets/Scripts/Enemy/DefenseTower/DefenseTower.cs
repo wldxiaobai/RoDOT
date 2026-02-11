@@ -29,6 +29,8 @@ public class DefenseTower : BaseEnemy
     [SerializeField] private GameObject lightningBallPrefab;
     [Tooltip("充能条填充贴图资源")]
     [SerializeField] private SpriteRenderer chargeBar;
+    [Tooltip("电球发射速度")]
+    [SerializeField, Min(0f)] private float lightningBallLaunchSpeed = 5f;
 
     private float chargeFillRate;
     private float chargeCooldownRemaining;
@@ -37,11 +39,20 @@ public class DefenseTower : BaseEnemy
     private Material towerMaterial;
     private SpriteRenderer _spriteRenderer;
     private Coroutine _flashCoroutine;
+    private LightningBall _activeChargingBall;
+    private bool _forceChargeBarFull;
+    private bool _chargeLocked;
+    private bool _postLaunchDrainActive;
 
     protected override string DecideNextBehaviour()
     {
         ResolvePlayer();
         if (!IsPlayerInRange() || chargeCooldownRemaining > 0f)
+        {
+            return IdleBehaviourName;
+        }
+
+        if (_activeChargingBall != null || _postLaunchDrainActive)
         {
             return IdleBehaviourName;
         }
@@ -100,7 +111,14 @@ public class DefenseTower : BaseEnemy
         {
             chargeCooldownRemaining = Mathf.Max(0f, chargeCooldownRemaining - Time.deltaTime);
         }
-        chargeFillRate = Mathf.Clamp01(chargeFillRate + chargePace * Time.deltaTime);
+        if (!_chargeLocked)
+        {
+            chargeFillRate = Mathf.Clamp01(chargeFillRate + chargePace * Time.deltaTime);
+        }
+        else
+        {
+            chargeFillRate = 1f;
+        }
         UpdateChargeBar();
         yield return null;
     }
@@ -113,10 +131,16 @@ public class DefenseTower : BaseEnemy
 
     private void StartChargeDrain()
     {
+        if (_chargeLocked && !_postLaunchDrainActive)
+        {
+            return;
+        }
+
         chargeFillRate = Mathf.Lerp(chargeFillRate, 0f, 10f * Time.deltaTime);
         if (chargeFillRate <= 0.001f)
         {
             chargeFillRate = 0f;
+            _postLaunchDrainActive = false;
         }
     }
 
@@ -127,7 +151,52 @@ public class DefenseTower : BaseEnemy
             return;
         }
 
+        if (_forceChargeBarFull)
+        {
+            if (_activeChargingBall == null)
+            {
+                ReleaseChargeLock();
+            }
+            else
+            {
+                chargeBarMaterial.SetFloat("_FillAmount", 1f);
+                return;
+            }
+        }
+
         chargeBarMaterial.SetFloat("_FillAmount", Mathf.Clamp01(chargeFillRate));
+    }
+
+    private void ReleaseChargeLock()
+    {
+        _forceChargeBarFull = false;
+        _chargeLocked = false;
+        _postLaunchDrainActive = true;
+        StartChargeDrain();
+    }
+
+    private void OnLightningBallChargeComplete(LightningBall ball)
+    {
+        if (ball == null || ball != _activeChargingBall)
+        {
+            return;
+        }
+
+        if (playerTransform != null)
+        {
+            var direction = playerTransform.position - ball.transform.position;
+            if (!Mathf.Approximately(direction.sqrMagnitude, 0f))
+            {
+                ball.SetLaunchDirection(direction);
+            }
+        }
+
+        ball.SetLaunchSpeed(lightningBallLaunchSpeed);
+        ball.ChargeCompleted -= OnLightningBallChargeComplete;
+        _activeChargingBall = null;
+        _forceChargeBarFull = false;
+        _chargeLocked = false;
+        _postLaunchDrainActive = true;
     }
 
     private void ResolvePlayer()
@@ -182,11 +251,12 @@ public class DefenseTower : BaseEnemy
         var ball = instance.GetComponent<LightningBall>();
         if (ball != null)
         {
-            var direction = playerTransform.position - spawnPosition;
-            if (!Mathf.Approximately(direction.sqrMagnitude, 0f))
-            {
-                ball.SetLaunchDirection(direction);
-            }
+            ball.ChargeCompleted += OnLightningBallChargeComplete;
+            _activeChargingBall = ball;
+            _forceChargeBarFull = true;
+            _chargeLocked = true;
+            _postLaunchDrainActive = false;
+            chargeFillRate = 1f;
             var renderer = ball.GetComponent<SpriteRenderer>();
             if (renderer != null && chargeBar != null)
             {
