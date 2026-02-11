@@ -266,7 +266,7 @@ MonoBehaviour:
   detectionRange: 8.5
   chargePace: 0.5
   attackCooldown: 1
-  lightningBallSpawnOffset: {x: 0.31, y: 1.84}
+  lightningBallSpawnOffset: {x: -1.5, y: -0.75}
   lightningBallPrefab: {fileID: 5101069380457094820, guid: 60d9a36dfeac470478f96e67d53fbaf0, type: 3}
   chargeBar: {fileID: 1475872946284370918}
 --- !u!1 &4783706130308739705

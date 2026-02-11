@@ -418,7 +418,8 @@ public class BaseEnemy : MonoBehaviour
         if(other.TryGetComponent<AttackHitInfo>(out var hitInfo))
         {
             if (hitInfo.GetHitResult(gameObject) != HitResult.None || 
-                hitInfo.AttackPosition == Position.Hostile || 
+                hitInfo.AttackPosition == Position.Hostile ||
+                hitInfo.AttackPosition == Position.None ||
                 InvincibleTimer.IsRunning) 
                 return;
             var incoming = hitInfo.GetHitInfo();
