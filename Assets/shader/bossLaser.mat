@@ -20,7 +20,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Shader Graphs_LaserShader
+  m_Name: bossLaser
   m_Shader: {fileID: -6465566751694194690, guid: e3891daf39867d54aa02a9bfa43d3c52, type: 3}
   m_Parent: {fileID: 0}
   m_ModifiedSerializedProperties: 0
