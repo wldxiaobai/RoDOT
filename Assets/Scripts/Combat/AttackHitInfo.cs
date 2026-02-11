@@ -4,7 +4,7 @@ using UnityEngine;
 using static AttackHitInfo;
 
 public enum AttackGrade { Light, Heavy }
-public enum Position { Friendly, Neutral, Hostile }
+public enum Position { Friendly, Neutral, Hostile, None }
 public enum HitResult { None, Hit, Blocked }
 
 [RequireComponent(typeof(Collider2D))]
@@ -34,7 +34,7 @@ public class AttackHitInfo : MonoBehaviour
 
     public HitInfo GetHitInfo()
     {
-        var multiplier = Sharpness.IsInitialized ? Sharpness.Instance.GetDamageMultiplier() : 1f;
+        var multiplier = Sharpness.IsInitialized && AttackPosition == Position.Friendly ? Sharpness.Instance.GetDamageMultiplier() : 1f;
         var adjustedDamage = Damage * multiplier;
         var sourcePosition = transform.position;
 

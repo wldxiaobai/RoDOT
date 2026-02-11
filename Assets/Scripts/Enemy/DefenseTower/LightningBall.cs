@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -28,8 +29,11 @@ public class LightningBall : MonoBehaviour
     private Vector2 _launchDirection = Vector2.right;
     private float _launchSpeed;
     private bool _hasLaunched;
-    private SpriteRenderer _spriteRenderer;
-    private Color _spriteBaseColor = Color.white;
+    private bool _chargeCompleteRaised;
+    private float lastProgress;
+    private Position _originalAttackPosition = Position.Hostile;
+
+    public event Action<LightningBall> ChargeCompleted;
 
     public void SetLaunchDirection(Vector2 direction)
     {
@@ -64,12 +68,7 @@ public class LightningBall : MonoBehaviour
     private void Awake()
     {
         _rigidbody2D = GetComponent<Rigidbody2D>();
-        _spriteRenderer = GetComponent<SpriteRenderer>();
-        if (_spriteRenderer != null)
-        {
-            _spriteBaseColor = _spriteRenderer.color;
-            SetChargeAlpha(0f);
-        }
+        transform.localScale = Vector3.zero;
         _remainingChargeTime = chargeDuration;
         _remainingFlightTime = Mathf.Max(0f, maxFlightTime);
         _launchSpeed = baseLaunchSpeed;
@@ -79,10 +78,8 @@ public class LightningBall : MonoBehaviour
         if (_attackHitInfo != null)
         {
             _attackHitInfo.OnBlocked += HandleAttackBlocked;
-        }
-        if (chargeSound != null)
-        {
-            AudioManager.PlaySound(chargeSound, transform.position, soundVolume);
+            _originalAttackPosition = _attackHitInfo.AttackPosition;
+            _attackHitInfo.AttackPosition = Position.None;
         }
     }
 
@@ -113,10 +110,10 @@ public class LightningBall : MonoBehaviour
         }
 
         _remainingChargeTime -= Time.deltaTime;
-        UpdateChargeTransparency();
-        if (_remainingChargeTime <= 0f)
+        UpdateChargeScale();
+        if (_remainingChargeTime <= 0f && !_chargeCompleteRaised)
         {
-            BeginLaunch();
+            CompleteCharge();
         }
     }
 
@@ -138,35 +135,48 @@ public class LightningBall : MonoBehaviour
         _hasLaunched = true;
         _remainingFlightTime = Mathf.Max(0f, maxFlightTime);
         _rigidbody2D.velocity = _launchDirection * _launchSpeed;
-        SetChargeAlpha(1f);
         if (launchSound != null)
         {
             AudioManager.PlaySound(launchSound, transform.position, soundVolume);
         }
+        transform.localScale = Vector3.one;
     }
 
-    private void UpdateChargeTransparency()
+    private void UpdateChargeScale()
     {
-        if (_spriteRenderer == null || chargeDuration <= 0f)
+        if (chargeDuration <= 0f)
         {
+            transform.localScale = Vector3.one;
             return;
         }
 
         var progress = Mathf.Clamp01(1f - (_remainingChargeTime / chargeDuration));
-        var alpha = Mathf.Lerp(0f, 1f, progress);
-        SetChargeAlpha(alpha);
-    }
+        Vector3 targetScale;
 
-    private void SetChargeAlpha(float alpha)
-    {
-        if (_spriteRenderer == null)
+        if (progress < 0.4f)
         {
-            return;
+            targetScale = Vector3.Lerp(transform.localScale, Vector3.one * 0.33f, 1f / chargeDuration);
+        }
+        else if (progress < 0.8f)
+        {
+            targetScale = Vector3.Lerp(transform.localScale, Vector3.one * 0.67f, 1f / chargeDuration);
+        }
+        else
+        {
+            targetScale = Vector3.Lerp(transform.localScale, Vector3.one, 1f / chargeDuration);
         }
 
-        var color = _spriteBaseColor;
-        color.a = Mathf.Clamp01(alpha);
-        _spriteRenderer.color = color;
+        bool thresholdCrossed =
+            progress * lastProgress <= 0f ||
+            (progress - 0.4f) * (lastProgress - 0.4f) <= 0f ||
+            (progress - 0.8f) * (lastProgress - 0.8f) <= 0f;
+        if (thresholdCrossed && chargeSound != null)
+        {
+            AudioManager.PlaySound(chargeSound, transform.position, soundVolume);
+        }
+
+        transform.localScale = targetScale;
+        lastProgress = progress;
     }
 
     private void HandleAttackBlocked(GameObject victim)
@@ -177,13 +187,37 @@ public class LightningBall : MonoBehaviour
         }
 
         _blockedResponseActive = true;
-        var time = _attackHitInfo.StunDuration + _attackHitInfo.ParryWindow + 0.08f; // 额外添加一个小的缓冲时间
+        var time = _attackHitInfo.StunDuration + _attackHitInfo.ParryWindow + 0.08f;
         _blockedRemainingTime = _attackHitInfo != null ? Mathf.Max(0f, time) : 0f;
         _hasLaunched = false;
         if (_rigidbody2D != null)
         {
             _rigidbody2D.velocity = Vector2.zero;
         }
+    }
+
+    private void CompleteCharge()
+    {
+        if (_chargeCompleteRaised)
+        {
+            return;
+        }
+
+        _chargeCompleteRaised = true;
+        _remainingChargeTime = 0f;
+        RestoreAttackPosition();
+        ChargeCompleted?.Invoke(this);
+        BeginLaunch();
+    }
+
+    private void RestoreAttackPosition()
+    {
+        if (_attackHitInfo == null)
+        {
+            return;
+        }
+
+        _attackHitInfo.AttackPosition = _originalAttackPosition;
     }
 
     private void OnDestroy()
