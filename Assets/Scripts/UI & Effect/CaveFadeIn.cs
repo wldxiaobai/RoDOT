@@ -8,6 +8,8 @@ public class CaveFadeIn : MonoBehaviour
     [Tooltip("淡入淡出持续时间")]
     [SerializeField] private float fadeDuration = 0.4f;
 
+    public List<GameObject> syncTransparencyObjects = new();
+
     private SpriteRenderer spriteRenderer;
     private Color originColor;
     private Coroutine fadeInCo;
@@ -22,6 +24,7 @@ public class CaveFadeIn : MonoBehaviour
         originColor = spriteRenderer.color;
         originColor.a = 0f; // 初始为完全透明
         spriteRenderer.color = originColor;
+        SyncAllObjectsAlpha(0f);
     }
 
     private void OnTriggerEnter2D(Collider2D other)
@@ -69,6 +72,7 @@ public class CaveFadeIn : MonoBehaviour
             float alpha = Mathf.Lerp(originAlpha, 1f, elapsedTime / fadeDuration);
             originColor.a = alpha;
             spriteRenderer.color = originColor;
+            SyncAllObjectsAlpha(alpha);
             elapsedTime += Time.deltaTime;
             yield return null;
         }
@@ -84,8 +88,25 @@ public class CaveFadeIn : MonoBehaviour
             float alpha = Mathf.Lerp(originAlpha, 0f, elapsedTime / fadeDuration);
             originColor.a = alpha;
             spriteRenderer.color = originColor;
+            SyncAllObjectsAlpha(alpha);
             elapsedTime += Time.deltaTime;
             yield return null;
+        }
+    }
+    private void SyncAllObjectsAlpha(float alpha)
+    {
+        foreach (var obj in syncTransparencyObjects)
+        {
+            if (obj != null)
+            {
+                var renderer = obj.GetComponent<SpriteRenderer>();
+                if (renderer != null)
+                {
+                    Color objColor = renderer.color;
+                    objColor.a = alpha;
+                    renderer.color = objColor;
+                }
+            }
         }
     }
 }
