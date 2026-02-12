@@ -75,6 +75,10 @@ public class Boss1 : BaseEnemy
     private const string EmbedName = "Embed";
     private const string WaitIdleName = "WaitIdle";
 
+    // 行为历史记录（用于降低重复行为的概率）
+    private const int BehaviourHistorySize = 3;
+    private readonly Queue<string> _behaviourHistory = new Queue<string>();
+
     // ---------------初始化---------------
 
     protected override void EnemyInit()
@@ -115,6 +119,79 @@ public class Boss1 : BaseEnemy
         AddBehaviour(name, preDelay, seq);
     }
 
+    // ---------------行为历史与加权随机---------------
+
+    /// <summary>
+    /// 将行为名称记入历史队列，队列始终保持最近 <see cref="BehaviourHistorySize"/> 条记录。
+    /// </summary>
+    private void RecordBehaviour(string behaviourName)
+    {
+        _behaviourHistory.Enqueue(behaviourName);
+        while (_behaviourHistory.Count > BehaviourHistorySize)
+        {
+            _behaviourHistory.Dequeue();
+        }
+    }
+
+    /// <summary>
+    /// 统计某行为在最近历史中出现的次数。
+    /// </summary>
+    private int CountInHistory(string behaviourName)
+    {
+        int count = 0;
+        foreach (var name in _behaviourHistory)
+        {
+            if (name == behaviourName)
+                count++;
+        }
+        return count;
+    }
+
+    /// <summary>
+    /// 根据历史出现次数计算权重倍率。
+    /// 0次 → 1.0，1次 → 0.67，2次 → 0.33，3次 → 0.0。
+    /// </summary>
+    private float GetHistoryWeight(string behaviourName)
+    {
+        int count = CountInHistory(behaviourName);
+        return 1f - (float)count / BehaviourHistorySize;
+    }
+
+    /// <summary>
+    /// 从候选行为中按历史加权随机选取一个。
+    /// 若所有权重均为 0，则等概率随机选取。
+    /// </summary>
+    private string WeightedRandomSelect(params string[] candidates)
+    {
+        float totalWeight = 0f;
+        float[] weights = new float[candidates.Length];
+
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            weights[i] = GetHistoryWeight(candidates[i]);
+            totalWeight += weights[i];
+        }
+
+        // 极端情况：所有候选权重均为 0，退化为等概率
+        if (totalWeight <= 0f)
+        {
+            return candidates[Random.Range(0, candidates.Length)];
+        }
+
+        float roll = Random.value * totalWeight;
+        float cumulative = 0f;
+        for (int i = 0; i < candidates.Length; i++)
+        {
+            cumulative += weights[i];
+            if (roll <= cumulative)
+            {
+                return candidates[i];
+            }
+        }
+
+        return candidates[candidates.Length - 1];
+    }
+
     // ---------------决策逻辑---------------
 
     protected override string DecideNextBehaviour()
@@ -143,25 +220,29 @@ public class Boss1 : BaseEnemy
         if (forceNextEmbed && currentSawState == SawState.displayed)
         {
             forceNextEmbed = false;
+            RecordBehaviour(EmbedName);
             return EmbedName;
         }
 
+        string chosen;
         switch (currentSawState)
         {
             case SawState.embed:
-                // 嵌入状态：随机选择 动作1(跃锯) 或 动作2(磨砺)
-                return Random.value < 0.5f ? LeapSawName : GrindName;
+                // 嵌入状态：加权随机选择 动作1(跃锯) 或 动作2(磨砺)
+                chosen = WeightedRandomSelect(LeapSawName, GrindName);
+                break;
 
             case SawState.displayed:
-                // 出现状态：随机选择 动作3(锻击) / 动作4(沉重锻击) / 动作5(嵌入)
-                float roll = Random.value;
-                if (roll < 0.33f) return StrikeName;
-                else if (roll < 0.66f) return HeavyStrikeName;
-                else return EmbedName;
+                // 出现状态：加权随机选择 动作3(锻击) / 动作4(沉重锻击) / 动作5(嵌入)
+                chosen = WeightedRandomSelect(StrikeName, HeavyStrikeName, EmbedName);
+                break;
 
             default:
                 return WaitIdleName;
         }
+
+        RecordBehaviour(chosen);
+        return chosen;
     }
 
     // ---------------玩家检测---------------
