@@ -28,6 +28,14 @@ public class Saw : MonoBehaviour
     [Tooltip("受击闪烁颜色")]
     [SerializeField] private Color hurtFlashColor = new(1f, 0.5f, 0.5f, 1f);
 
+    [Header("音效设置")]
+    [Tooltip("音量")]
+    [Range(0f, 1f)] [SerializeField] private float volume = 0.4f;
+    [Tooltip("被玩家攻击时的音效")] 
+    [SerializeField] private AudioClip hurtByPlayerClip; 
+    [Tooltip("被玩家格挡时的音效")] 
+    [SerializeField] private AudioClip blockedByPlayerClip;
+
     private float continuousFireTimer;
 
     private SpriteRenderer spriteRenderer;
@@ -1104,6 +1112,12 @@ public class Saw : MonoBehaviour
     [SerializeField] private float staggerKnockbackSpeed = 5f;
     [Tooltip("僵直时横向击退距离")]
     [SerializeField] private float staggerKnockbackDistance = 1f;
+    [Tooltip("僵直时震屏时间")]
+    [SerializeField] private float staggerCameraShakeDuration = 0.5f; 
+    [Tooltip("僵直时震屏强度")] 
+    [SerializeField] private float staggerCameraShakeMagnitude = 0.3f;
+    [Tooltip("僵直时冻结帧时长")]
+    [SerializeField] private float staggerFreezeFrameDuration = 0.1f;
 
     private readonly ActSeq staggerSawSeq = new();
 
@@ -1147,6 +1161,18 @@ public class Saw : MonoBehaviour
         {
             spriteRenderer.enabled = true;
         }
+        // 恢复红温前的原始颜色
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.color = heavyForgeOriginalColor;
+        }
+
+        // 更长的闪白时间以突出僵直状态
+        FlashEffect(flashDuration * 2, hurtFlashColor);
+        // 震屏，方向向左以强调被击退的感觉
+        CameraShakeManager.Instance.ShakeStraight(Vector3.left, staggerCameraShakeDuration, staggerCameraShakeMagnitude);
+        // 冻结帧
+        FreezeFrameManager.Instance.TriggerFreezeFrame(staggerFreezeFrameDuration);
 
         // 根据玩家位置决定击退方向：远离玩家
         float dirX = 1f;
@@ -1269,6 +1295,7 @@ public class Saw : MonoBehaviour
     {
         if (!IsPlayerObject(blocker)) return;
         ReduceToughness(toughnessReduceOnBlocked);
+        AudioManager.PlaySound(blockedByPlayerClip, transform.position, volume);
     }
 
     /// <summary>
@@ -1292,6 +1319,7 @@ public class Saw : MonoBehaviour
             hitInfo.RecordHitObject(gameObject);
             ReduceToughness(toughnessReduceOnHit);
             FlashEffect(flashDuration, hurtFlashColor);
+            AudioManager.PlaySound(hurtByPlayerClip, transform.position, volume);
         }
     }
 

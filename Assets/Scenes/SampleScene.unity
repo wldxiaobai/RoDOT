@@ -1414,6 +1414,7 @@ GameObject:
   - component: {fileID: 375377782}
   - component: {fileID: 375377784}
   - component: {fileID: 375377783}
+  - component: {fileID: 375377785}
   m_Layer: 3
   m_Name: Saw
   m_TagString: Untagged
@@ -1509,10 +1510,13 @@ MonoBehaviour:
   flashDuration: 0.2
   colorCoverRate: 0.7
   hurtFlashColor: {r: 1, g: 1, b: 1, a: 1}
+  volume: 0.4
+  hurtByPlayerClip: {fileID: 8300000, guid: 539735380aa3ccf44816535064988202, type: 3}
+  blockedByPlayerClip: {fileID: 8300000, guid: 5b260e965e0d0d94094ce1a21bf28076, type: 3}
   maxToughness: 100
-  toughnessReduceOnHit: 20
-  toughnessReduceOnBlocked: 30
-  staggerHoldDuration: 6
+  toughnessReduceOnHit: 5
+  toughnessReduceOnBlocked: 15
+  staggerHoldDuration: 4
   leapFireSpawnRangeX: 2
   fireSpawnPreDelay: 2
   sawJumpSpeed: 10
@@ -1542,6 +1546,9 @@ MonoBehaviour:
   embedDistance: 2
   staggerKnockbackSpeed: 5
   staggerKnockbackDistance: 2
+  staggerCameraShakeDuration: 0.24
+  staggerCameraShakeMagnitude: 0.2
+  staggerFreezeFrameDuration: 0.16
   firePerfab: {fileID: 3323284929091016142, guid: 2babcca4f48cf0d418ecfa13b183c77a, type: 3}
   initialFirePoolSize: 256
   fireLifetime: 3
@@ -1597,6 +1604,33 @@ CircleCollider2D:
   m_Offset: {x: -0.024617512, y: 0.06946881}
   serializedVersion: 2
   m_Radius: 4.3823175
+--- !u!50 &375377785
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 375377778}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1001 &386271023
 PrefabInstance:
   m_ObjectHideFlags: 0
