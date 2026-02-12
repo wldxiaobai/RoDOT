@@ -1033,6 +1033,7 @@ public class PlayerStateMachine : MonoBehaviour
                 elapsed += Time.deltaTime;
                 yield return null;
             }
+            BlockedHitInfo.Origin.RecordHitObject(gameObject, HitResult.Parryed);
         }
 
         IEnumerator SuccessfulParryAction(MonoBehaviour _)

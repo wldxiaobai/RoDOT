@@ -5,7 +5,7 @@ using static AttackHitInfo;
 
 public enum AttackGrade { Light, Heavy }
 public enum Position { Friendly, Neutral, Hostile, None }
-public enum HitResult { None, Hit, Blocked }
+public enum HitResult { None, Hit, Blocked, Parryed }
 
 [RequireComponent(typeof(Collider2D))]
 public class AttackHitInfo : MonoBehaviour
@@ -31,6 +31,7 @@ public class AttackHitInfo : MonoBehaviour
 
     public Action<GameObject> OnHit;
     public Action<GameObject> OnBlocked;
+    public Action<GameObject> OnParryed;
 
     public HitInfo GetHitInfo()
     {
@@ -60,6 +61,9 @@ public class AttackHitInfo : MonoBehaviour
                 break;
             case HitResult.Blocked:
                 OnBlocked?.Invoke(obj);
+                break;
+            case HitResult.Parryed:
+                OnParryed?.Invoke(obj);
                 break;
         }
     }
