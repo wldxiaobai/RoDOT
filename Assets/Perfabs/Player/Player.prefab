@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 5570046578071033179}
   - component: {fileID: 4130921524453080540}
   - component: {fileID: 137685006031860664}
+  - component: {fileID: 3969429196224489069}
   m_Layer: 3
   m_Name: Parry_1
   m_TagString: Untagged
@@ -105,6 +106,33 @@ MonoBehaviour:
   AttackPosition: 0
   StunDuration: 0.5
   ParryWindow: 0.2
+--- !u!50 &3969429196224489069
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1282262608105618758}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &5175495289002196775
 GameObject:
   m_ObjectHideFlags: 0
@@ -116,6 +144,7 @@ GameObject:
   - component: {fileID: 8899796471152970637}
   - component: {fileID: 1997902618806221391}
   - component: {fileID: 5953106344068088205}
+  - component: {fileID: 4366995476053288905}
   m_Layer: 3
   m_Name: Parry_2
   m_TagString: Untagged
@@ -207,6 +236,33 @@ MonoBehaviour:
   AttackPosition: 0
   StunDuration: 0.5
   ParryWindow: 0.2
+--- !u!50 &4366995476053288905
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5175495289002196775}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
 --- !u!1 &7582776332695481402
 GameObject:
   m_ObjectHideFlags: 0
@@ -290,7 +346,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_Sprite: {fileID: -847566340, guid: bae351ed37690f04bb6efe6a86b8ce6e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -525,6 +581,7 @@ GameObject:
   - component: {fileID: 5049463040205042648}
   - component: {fileID: 7640605198383117080}
   - component: {fileID: 6468029185083990928}
+  - component: {fileID: 8051369468925894893}
   m_Layer: 3
   m_Name: Attack
   m_TagString: Untagged
@@ -617,3 +674,30 @@ MonoBehaviour:
   AttackPosition: 0
   StunDuration: 0.5
   ParryWindow: 0.2
+--- !u!50 &8051369468925894893
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8934441263178172045}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
