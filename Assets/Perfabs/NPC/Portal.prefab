@@ -96,4 +96,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   sceneName: Level2
   playerTag: Player
-  spawnPoint: {x: -7.56, y: -1.9, z: -1}
+  spawnPoint: {x: 0, y: 2, z: -1}
