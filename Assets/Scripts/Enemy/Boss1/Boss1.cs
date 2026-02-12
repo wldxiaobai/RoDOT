@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 /// <summary>
 /// Boss1 :电锯+磨刀石之门
@@ -64,8 +65,23 @@ public class Boss1 : BaseEnemy
     [Tooltip("Boss战区域右上角")]
     [SerializeField] private Vector2 arenaMax = new Vector2(10f, 5f);
 
+    [Header("控制门的脚本 引用")]
+    [SerializeField] private DoorControl doorControl;
+
+    [Header("开场时震屏效果")]
+    [SerializeField] private float shakeDuration = 0.4f; 
+    [SerializeField] private float shakeMagnitude = 0.2f;
+
+    [Header("死亡设置")]
+    [Tooltip("死亡后等待多久再开门（秒）")]
+    [SerializeField] private float deathDelay = 2f;
+
     private SawState currentSawState = SawState.embed;
     private bool forceNextEmbed;
+
+    // 首次激活：需要玩家击中一次Boss后才正式启动行为
+    private bool _hasEverActivated;
+    private bool _firstHitReceived;
 
     // 行为名称常量
     private const string LeapSawName = "LeapSaw";
@@ -84,7 +100,8 @@ public class Boss1 : BaseEnemy
     protected override void EnemyInit()
     {
         RegisterAllBehaviours();
-        currentSawState = SawState.embed;
+        RegisterDeathSequence();
+        currentSawState = SawState.idle;
 
         // 初始化时隐藏电锯贴图，确保嵌入状态下电锯不可见
         if (sawObject != null)
@@ -117,6 +134,18 @@ public class Boss1 : BaseEnemy
         seq.Start.SetNext(node);
         node.SetNext(seq.End);
         AddBehaviour(name, preDelay, seq);
+    }
+
+    /// <summary>
+    /// 注册死亡序列：用单个 ActionNode 构建 ActSeq 并通过 SetDeath 注册。
+    /// </summary>
+    private void RegisterDeathSequence()
+    {
+        var seq = new ActSeq();
+        var node = seq.CreateActionNode(() => DeathCoroutine());
+        seq.Start.SetNext(node);
+        node.SetNext(seq.End);
+        SetDeath(seq);
     }
 
     // ---------------行为历史与加权随机---------------
@@ -210,7 +239,21 @@ public class Boss1 : BaseEnemy
             return WaitIdleName;
         }
 
-        // 玩家回到场地时，从嵌入状态恢复
+        // 首次激活：玩家在场地内但尚未击中Boss，保持待机
+        if (!_hasEverActivated)
+        {
+            if (!_firstHitReceived)
+            {
+                currentSawState = SawState.idle;
+                return WaitIdleName;
+            }
+
+            // 玩家已击中，标记为已激活，进入嵌入状态开始行为循环
+            _hasEverActivated = true;
+            currentSawState = SawState.embed;
+        }
+
+        // 玩家回到场地时，从嵌入状态恢复（非首次进入，无需等待击中）
         if (currentSawState == SawState.idle)
         {
             currentSawState = SawState.embed;
@@ -425,6 +468,56 @@ public class Boss1 : BaseEnemy
     private IEnumerator Behav_WaitIdle()
     {
         yield return new WaitForSeconds(1f);
+    }
+
+    // ---------------受击闪烁---------------
+
+    protected override void OnHitByPlayerAttack(HitInfo incoming)
+    {
+        base.OnHitByPlayerAttack(incoming);
+        doorControl.DoorFlashEffect();
+
+        // 首次激活时震屏全幅，之后震屏幅度降低
+        var factor = !_hasEverActivated ? 1f : 0.4f;
+        CameraShakeManager.Instance.ShakeStraight(Vector2.right, shakeDuration, shakeMagnitude * factor);
+
+        if (!_hasEverActivated)
+        {
+            _firstHitReceived = true;
+        }
+    }
+
+    // ---------------死亡协程---------------
+
+    /// <summary>
+    /// 死亡序列：等待一段时间后触发门开启动画，并禁用自身 Collider。
+    /// </summary>
+    private IEnumerator DeathCoroutine()
+    {
+        // 死亡时立即隐藏电锯
+        if (sawObject != null)
+        {
+            var sr = sawObject.GetComponent<SpriteRenderer>();
+            if (sr != null)
+            {
+                sr.enabled = false;
+            }
+        }
+
+        yield return new WaitForSeconds(deathDelay);
+
+        // 触发门的开启动画
+        if (doorControl != null)
+        {
+            doorControl.OpenDoor();
+        }
+
+        // 禁用自身 Collider，防止继续产生碰撞
+        var col = GetComponent<Collider2D>();
+        if (col != null)
+        {
+            col.enabled = false;
+        }
     }
 
     // ---------------僵直等待---------------

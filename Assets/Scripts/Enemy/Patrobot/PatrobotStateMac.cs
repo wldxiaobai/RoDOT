@@ -32,6 +32,12 @@ public class PatrobotStateMac : BaseEnemy
     [Tooltip("被格挡闪烁颜色")]
     [SerializeField] private Color blockFlashColor = new(1f, 1f, 1f, 1f);
 
+    [Header("音效设置")]
+    [Tooltip("音量")]
+    [Range(0f, 1f)] [SerializeField] private float soundVolume = 0.8f;
+    [Tooltip("受击音效")] 
+    [SerializeField] private AudioClip hurtSound;
+
     // --- Patrol Configuration ---
     [Header("巡逻设置")]
     [Tooltip("巡逻中心相对于初始位置的偏移")]
@@ -618,6 +624,7 @@ public class PatrobotStateMac : BaseEnemy
         _postHurtIdleDuration = Mathf.Max(0f, hurtIdleAfterRetreat);
         _blockChaseAfterHurt = true;
 
+        AudioManager.PlaySound(hurtSound, transform.position, soundVolume);
         _hurtRetreatRemaining = Mathf.Max(0f, hurtRetreatDuration);
         StartInvincibleTimer(_hurtRetreatRemaining);
         SetBehaviourState(HurtBehaviourName);

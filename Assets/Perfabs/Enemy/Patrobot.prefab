@@ -306,6 +306,8 @@ MonoBehaviour:
   flashDuration: 0.2
   hurtFlashColor: {r: 1, g: 0.49803922, b: 0.49803922, a: 1}
   blockFlashColor: {r: 1, g: 1, b: 1, a: 1}
+  soundVolume: 0.8
+  hurtSound: {fileID: 8300000, guid: 89939b1f5e4cc07469570c380340ec99, type: 3}
   patrolCenterOffset: {x: 0, y: 0}
   patrolRange: 3
   patrolSpeed: 2

@@ -481,7 +481,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   maxSharpness: 100
-  decreaseAmount: 0.14
+  decreaseAmount: 3
   SharpnessBar: {fileID: 63394678569369139}
   SharpnessBarFilling: {fileID: 8637412811694710170}
 --- !u!1 &6630543558813817118

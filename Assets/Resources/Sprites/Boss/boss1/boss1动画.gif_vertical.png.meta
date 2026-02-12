@@ -43,7 +43,7 @@ TextureImporter:
   nPOTScale: 0
   lightmap: 0
   compressionQuality: 50
-  spriteMode: 1
+  spriteMode: 2
   spriteExtrude: 1
   spriteMeshType: 1
   alignment: 0
@@ -66,21 +66,214 @@ TextureImporter:
   applyGammaDecoding: 0
   swizzle: 50462976
   cookieLightType: 0
-  platformSettings: []
+  platformSettings:
+  - serializedVersion: 3
+    buildTarget: DefaultTexturePlatform
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: Standalone
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
+  - serializedVersion: 3
+    buildTarget: WebGL
+    maxTextureSize: 2048
+    resizeAlgorithm: 0
+    textureFormat: -1
+    textureCompression: 1
+    compressionQuality: 50
+    crunchedCompression: 0
+    allowsAlphaSplitting: 0
+    overridden: 0
+    ignorePlatformSupport: 0
+    androidETC2FallbackOverride: 0
+    forceMaximumCompressionQuality_BC6H_BC7: 0
   spriteSheet:
     serializedVersion: 2
-    sprites: []
+    sprites:
+    - serializedVersion: 2
+      name: "boss1\u52A8\u753B.gif_vertical_0"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 8176.2856
+        width: 2473
+        height: 1362.7142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 463b5ca1e414e0d44bbaf07e380ab347
+      internalID: -164442259
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "boss1\u52A8\u753B.gif_vertical_1"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 6814.2856
+        width: 2473
+        height: 1362.7142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91e929a90b0ea5245ae626158b32e8e6
+      internalID: 574363772
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "boss1\u52A8\u753B.gif_vertical_2"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 5452.2856
+        width: 2473
+        height: 1362.7142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2dad5f21e4ee05948b2fdc4d58753a3a
+      internalID: 131022777
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "boss1\u52A8\u753B.gif_vertical_3"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4090.2856
+        width: 2473
+        height: 1362.7142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1ffdef451d2170640a486ece9f343531
+      internalID: 782314965
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "boss1\u52A8\u753B.gif_vertical_4"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 2728.2856
+        width: 2473
+        height: 1362.7142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 13294afca7da0e149a092050729fdbe9
+      internalID: 1451312493
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "boss1\u52A8\u753B.gif_vertical_5"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 1366.2858
+        width: 2473
+        height: 1362.7142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 406cd9b804890b747bd2dd1d60bfe279
+      internalID: 1027080625
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: "boss1\u52A8\u753B.gif_vertical_6"
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 4.2857666
+        width: 2473
+        height: 1362.7142
+      alignment: 0
+      pivot: {x: 0, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 0c281e971a0ce6442879486f86aca1f9
+      internalID: -2119835957
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
     outline: []
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 5e97eb03825dee720800000000000000
     internalID: 0
     vertices: []
     indices: 
     edges: []
     weights: []
     secondaryTextures: []
-    nameFileIdTable: {}
+    nameFileIdTable:
+      "boss1\u52A8\u753B.gif_vertical_0": -164442259
+      "boss1\u52A8\u753B.gif_vertical_1": 574363772
+      "boss1\u52A8\u753B.gif_vertical_2": 131022777
+      "boss1\u52A8\u753B.gif_vertical_3": 782314965
+      "boss1\u52A8\u753B.gif_vertical_4": 1451312493
+      "boss1\u52A8\u753B.gif_vertical_5": 1027080625
+      "boss1\u52A8\u753B.gif_vertical_6": -2119835957
   mipmapLimitGroupName: 
   pSDRemoveMatte: 0
   userData: 
