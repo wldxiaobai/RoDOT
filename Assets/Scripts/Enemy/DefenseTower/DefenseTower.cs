@@ -8,6 +8,12 @@ public class DefenseTower : BaseEnemy
     private const string ChargeBehaviourName = "Charge";
     private const string LaunchBehaviourName = "Launch";
 
+    [Header("音效设置")]
+    [Tooltip("音量")]
+    [Range(0f, 1f)][SerializeField] private float soundVolume = 0.8f;
+    [Tooltip("受击音效")]
+    [SerializeField] private AudioClip hurtSound;
+
     [Header("受击设置")]
     [Tooltip("受击闪烁持续时间")]
     [SerializeField] private float hitFlashDuration = 0.2f;
@@ -293,6 +299,7 @@ public class DefenseTower : BaseEnemy
     {
         base.OnHitByPlayerAttack(incoming);
         FlashEffect(hitFlashDuration, hitFlashColor);
+        AudioManager.PlaySound(hurtSound, transform.position, soundVolume);
     }
 
     // --- Visual Effects ---

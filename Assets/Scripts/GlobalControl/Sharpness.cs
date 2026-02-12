@@ -8,8 +8,8 @@ public class Sharpness : Globalizer<Sharpness>
     [Header("锋利度设置")]
     [Tooltip("最大锋利度")]
     [SerializeField] private float maxSharpness = 100.0f;
-    [Tooltip("锋利度每物理帧流失量")]
-    [SerializeField] private float decreaseAmount = 0.14f;
+    [Tooltip("锋利度每秒流失量")]
+    [SerializeField] private float decreaseAmount = 8f;
 
     [Header("锋利条UI引用")]
     [Tooltip("锋利条外壳")]
@@ -29,7 +29,7 @@ public class Sharpness : Globalizer<Sharpness>
     {
         if (active)
         {
-            DecreaseSharpness(decreaseAmount);
+            DecreaseSharpness(decreaseAmount * Time.fixedDeltaTime);
         }
     }
 

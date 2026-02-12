@@ -13,11 +13,16 @@ public class Saw : MonoBehaviour
     [SerializeField] AttackHitInfo sawAttack;
     [Tooltip("电锯旋转速度（度/秒）")]
     [SerializeField] private float sawRotateSpeed = 720f;
+
     [Header("持续冒火设置（动作2/3/4期间）")]
     [Tooltip("持续冒火的时间间隔（秒）")]
     [SerializeField] private float continuousFireInterval = 0.05f;
     [Tooltip("持续冒火的火星速度")]
     [SerializeField] private float continuousFireSpeed = 5f;
+
+    [Header("锋利度交互设置")]
+    [Tooltip("被玩家攻击时，玩家回复锋利度")]
+    [SerializeField] private float sharpnessRestoreOnHit = 5f;
 
     [Header("视效设置")]
     [Tooltip("闪烁特效时长")]
@@ -35,6 +40,8 @@ public class Saw : MonoBehaviour
     [SerializeField] private AudioClip hurtByPlayerClip; 
     [Tooltip("被玩家格挡时的音效")] 
     [SerializeField] private AudioClip blockedByPlayerClip;
+    [Tooltip("磨砺音效")]
+    [SerializeField] private AudioClip grindClip;
 
     private float continuousFireTimer;
 
@@ -45,6 +52,8 @@ public class Saw : MonoBehaviour
     private Material _material;
 
     private Coroutine _flashCoroutine;
+
+    private Collider2D sawCollider;
 
     // ---------------韧性条---------------
 
@@ -82,6 +91,7 @@ public class Saw : MonoBehaviour
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
+        sawCollider = GetComponent<Collider2D>();
         _material = spriteRenderer.material;
         toughness = new AmountBar(maxToughness);
         EnsureFirePoolInitialized();
@@ -237,8 +247,13 @@ public class Saw : MonoBehaviour
     private IEnumerator LeapSaw_SpawnFires()
     {
         // 动作开始时确保电锯不出现且攻击碰撞箱禁用
-        if (spriteRenderer != null) { spriteRenderer.enabled = false; }
+        SetSawAppearance(false);
         SetSawAttackActive(false);
+
+        if (sawAttack != null)
+        {
+            sawAttack.Grade = AttackGrade.Light;
+        }
 
         // 根据玩家位置动态计算火星生成点
         float playerX = 0f;
@@ -267,10 +282,7 @@ public class Saw : MonoBehaviour
     {
         // 瞬移到动态计算的出现位置并显示电锯
         transform.position = new Vector3(leapSawAppearPos.x, leapSawAppearPos.y, transform.position.z);
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = true;
-        }
+        SetSawAppearance(true);
 
         // 电锯出现，启用攻击碰撞箱
         SetSawAttackActive(true);
@@ -306,10 +318,7 @@ public class Saw : MonoBehaviour
         SetSawAttackActive(false);
 
         // 停止运动并隐藏电锯
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = false;
-        }
+        SetSawAppearance(false);
     }
 
     // ---------------动作1：跃锯结束---------------
@@ -321,6 +330,10 @@ public class Saw : MonoBehaviour
     [Header("动作2：磨砺 设置")]
     [Tooltip("磨砺时火星生成持续时间")]
     [SerializeField] private float grindFireSpawnDuration = 1f;
+    [Tooltip("磨砺后电锯出现，震屏的时长")]
+    [SerializeField] private float grindScreenShakeDuration = 0.16f;
+    [Tooltip("磨砺后电锯出现，震屏的强度")]
+    [SerializeField] private float grindScreenShakeMagnitude = 0.5f;
     [Tooltip("向左突进的速度")]
     [SerializeField] private float grindDashSpeed = 5f;
     [Tooltip("向左突进的距离")]
@@ -366,8 +379,16 @@ public class Saw : MonoBehaviour
     private IEnumerator GrindSaw_SpawnFires()
     {
         // 动作开始时确保电锯不出现且攻击碰撞箱禁用
-        if (spriteRenderer != null) { spriteRenderer.enabled = false; }
+        SetSawAppearance(false);
         SetSawAttackActive(false);
+
+        if (sawAttack != null)
+        {
+            sawAttack.Grade = AttackGrade.Light;
+        }
+
+        CameraShakeManager.Instance.ShakeStraight(Vector2.left, grindScreenShakeDuration, grindScreenShakeMagnitude);
+        AudioManager.PlaySound(grindClip, transform.position, volume);
 
         // 火星生成位置：门与地板交汇处 (doorX, groundY)
         float fireX = doorX;
@@ -391,10 +412,7 @@ public class Saw : MonoBehaviour
 
         // 瞬移到出现位置并显示电锯
         transform.position = new Vector3(appearX, appearY, transform.position.z);
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = true;
-        }
+        SetSawAppearance(true);
 
         // 电锯出现，启用攻击碰撞箱
         SetSawAttackActive(true);
@@ -529,9 +547,11 @@ public class Saw : MonoBehaviour
     private IEnumerator ForgeSaw_Reset()
     {
         // 显示电锯
-        if (spriteRenderer != null)
+        SetSawAppearance(true);
+
+        if (sawAttack != null)
         {
-            spriteRenderer.enabled = true;
+            sawAttack.Grade = AttackGrade.Light;
         }
 
         // 归位位置：玩家左方 forgeResetDistanceFromPlayer 处，y 为 groundY
@@ -791,10 +811,7 @@ public class Saw : MonoBehaviour
 
     private IEnumerator HeavyForgeSaw_Reset()
     {
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = true;
-        }
+        SetSawAppearance(true);
 
         if (sawAttack != null)
         {
@@ -1095,10 +1112,7 @@ public class Saw : MonoBehaviour
         }
 
         // 移动完毕，隐藏电锯
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = false;
-        }
+        SetSawAppearance(false);
     }
 
     // ---------------动作5：嵌入结束---------------
@@ -1157,10 +1171,7 @@ public class Saw : MonoBehaviour
     private IEnumerator StaggerSaw_HorizontalKnockback()
     {
         // 僵直时确保电锯可见
-        if (spriteRenderer != null)
-        {
-            spriteRenderer.enabled = true;
-        }
+        SetSawAppearance(true);
         // 恢复红温前的原始颜色
         if (spriteRenderer != null)
         {
@@ -1246,6 +1257,22 @@ public class Saw : MonoBehaviour
     // ---------------其他方法---------------
 
     /// <summary>
+    /// 设置电锯的可见性，同时同步启用/禁用自身 Collider。
+    /// 电锯不出现时不应接收碰撞检测。
+    /// </summary>
+    private void SetSawAppearance(bool visible)
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.enabled = visible;
+        }
+        if (sawCollider != null)
+        {
+            sawCollider.enabled = visible;
+        }
+    }
+
+    /// <summary>
     /// 设置电锯攻击碰撞箱的启用状态。
     /// </summary>
     private void SetSawAttackActive(bool active)
@@ -1320,6 +1347,7 @@ public class Saw : MonoBehaviour
             ReduceToughness(toughnessReduceOnHit);
             FlashEffect(flashDuration, hurtFlashColor);
             AudioManager.PlaySound(hurtByPlayerClip, transform.position, volume);
+            Sharpness.Instance.IncreaseSharpness(sharpnessRestoreOnHit);
         }
     }
 

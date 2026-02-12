@@ -129,8 +129,14 @@ public class CameraFollow : MonoBehaviour
     private bool isTransitioning = false; // 是否正在过渡
     private float transitionProgress = 0f; // 过渡进度
 
+    // 子相机引用（用于设置宽高比）
+    private Camera childCamera;
+
     void Start()
     {
+        // 获取子物体上的相机组件
+        childCamera = GetComponentInChildren<Camera>();
+
         // 如果没有边界设置，创建一个默认边界
         if (boundaries == null || boundaries.Length == 0)
         {
@@ -169,8 +175,8 @@ public class CameraFollow : MonoBehaviour
     {
         if (!useFixedAspectRatio) return;
 
-        // 获取摄像头组件
-        Camera cam = GetComponent<Camera>();
+        // 优先使用子相机，兼容挂载在相机自身的情况
+        Camera cam = childCamera != null ? childCamera : GetComponent<Camera>();
         if (cam == null)
         {
             Debug.LogError("摄像头组件未找到！");
@@ -701,7 +707,7 @@ public class CameraFollow : MonoBehaviour
         info += $"边界数量: {boundaries.Length}\n";
 
         // 显示摄像头比例信息
-        Camera cam = GetComponent<Camera>();
+        Camera cam = childCamera != null ? childCamera : GetComponent<Camera>();
         if (cam != null)
         {
             info += $"摄像头比例: {(useFixedAspectRatio ? $"{aspectWidth}:{aspectHeight}" : "自适应")}\n";

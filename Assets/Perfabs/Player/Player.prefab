@@ -346,7 +346,7 @@ SpriteRenderer:
   m_LightmapParameters: {fileID: 0}
   m_SortingLayerID: 0
   m_SortingLayer: 0
-  m_SortingOrder: 1
+  m_SortingOrder: 2
   m_Sprite: {fileID: -847566340, guid: bae351ed37690f04bb6efe6a86b8ce6e, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 1
@@ -476,7 +476,7 @@ MonoBehaviour:
   gravity: 24
   attackInputBuffer: 0.1
   attackDuration: 0.35
-  floatAttackDuration: 0.2
+  floatAttackDuration: 0.35
   blockInputBuffer: 0.15
   blockDuration: 0.3
   blockSucceededDuration: 0.2
@@ -487,7 +487,7 @@ MonoBehaviour:
   hurtDuration: 0.2
   invincibleDuration: 1
   deathDuration: 1
-  blockIncreaseSharpness: 15
+  blockIncreaseSharpness: 25
 --- !u!95 &4455229661660741923
 Animator:
   serializedVersion: 5
@@ -560,7 +560,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c3d45de57d3c0947a9b3f73c26fc371, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  volume: 0.5
+  volume: 0.33
   jumpAudio: {fileID: 8300000, guid: 97ad8bc24d482194c86ace9f8701e7fe, type: 3}
   landAudio: {fileID: 8300000, guid: 523f28d0dacd38744a14d2e99136ca49, type: 3}
   attackAudio: {fileID: 8300000, guid: de34c5230830db742a422bdeb19debb8, type: 3}
@@ -569,7 +569,7 @@ MonoBehaviour:
   walkAudio: {fileID: 8300000, guid: 8d574061488cb184cb17c512ee310c68, type: 3}
   dashAudio: {fileID: 8300000, guid: 57ce493e6e85db94197d6e8fe240b17a, type: 3}
   defendedAudio: {fileID: 8300000, guid: db2710e70c3681541aaf770e9c963bc9, type: 3}
-  parryAudio: {fileID: 8300000, guid: 89939b1f5e4cc07469570c380340ec99, type: 3}
+  parryAudio: {fileID: 8300000, guid: 62c3a2939a1a76549a41b6653b24901a, type: 3}
 --- !u!1 &8934441263178172045
 GameObject:
   m_ObjectHideFlags: 0

@@ -261,6 +261,8 @@ MonoBehaviour:
   destroyOnDeath: 1
   maxHP: 80
   enemyName: Enemy
+  soundVolume: 0.8
+  hurtSound: {fileID: 8300000, guid: ff239e81b4d24f04eb38c1a7bca9128f, type: 3}
   hitFlashDuration: 0.2
   hitFlashColor: {r: 1, g: 1, b: 1, a: 1}
   detectionRange: 8.5
@@ -269,6 +271,7 @@ MonoBehaviour:
   lightningBallSpawnOffset: {x: -1.5, y: -0.75}
   lightningBallPrefab: {fileID: 5101069380457094820, guid: 60d9a36dfeac470478f96e67d53fbaf0, type: 3}
   chargeBar: {fileID: 1475872946284370918}
+  lightningBallLaunchSpeed: 5
 --- !u!1 &4783706130308739705
 GameObject:
   m_ObjectHideFlags: 0
