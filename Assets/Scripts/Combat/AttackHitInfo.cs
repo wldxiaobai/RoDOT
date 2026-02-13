@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using static AttackHitInfo;
 
-public enum AttackGrade { Light, Heavy }
+public enum AttackGrade { Light, Heavy, Unstoppable }
 public enum Position { Friendly, Neutral, Hostile, None }
 public enum HitResult { None, Hit, Blocked, Parryed }
 

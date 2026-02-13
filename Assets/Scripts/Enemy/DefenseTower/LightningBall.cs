@@ -9,6 +9,8 @@ public class LightningBall : MonoBehaviour
     [Header("蓄力设置")]
     [Tooltip("蓄力所需时间（秒）")]
     [SerializeField, Min(0f)] private float chargeDuration = 0.5f;
+    [Tooltip("目标大小")]
+    [SerializeField, Min(0f)] private Vector3 targetScale = new Vector3(1f, 1f, 1f);
 
     [Header("发射设置")]
     [Tooltip("默认发射速度")]
@@ -139,31 +141,32 @@ public class LightningBall : MonoBehaviour
         {
             AudioManager.PlaySound(launchSound, transform.position, soundVolume);
         }
-        transform.localScale = Vector3.one;
+        transform.localScale = targetScale;
     }
 
     private void UpdateChargeScale()
     {
         if (chargeDuration <= 0f)
         {
-            transform.localScale = Vector3.one;
+            transform.localScale = targetScale;
+            ;
             return;
         }
 
         var progress = Mathf.Clamp01(1f - (_remainingChargeTime / chargeDuration));
-        Vector3 targetScale;
+        Vector3 scaleStep;
 
         if (progress < 0.4f)
         {
-            targetScale = Vector3.Lerp(transform.localScale, Vector3.one * 0.33f, 1f / chargeDuration);
+            scaleStep = Vector3.Lerp(transform.localScale, targetScale * 0.33f, 1f / chargeDuration);
         }
         else if (progress < 0.8f)
         {
-            targetScale = Vector3.Lerp(transform.localScale, Vector3.one * 0.67f, 1f / chargeDuration);
+            scaleStep = Vector3.Lerp(transform.localScale, targetScale * 0.67f, 1f / chargeDuration);
         }
         else
         {
-            targetScale = Vector3.Lerp(transform.localScale, Vector3.one, 1f / chargeDuration);
+            scaleStep = Vector3.Lerp(transform.localScale, targetScale, 1f / chargeDuration);
         }
 
         bool thresholdCrossed =
@@ -175,7 +178,7 @@ public class LightningBall : MonoBehaviour
             AudioManager.PlaySound(chargeSound, transform.position, soundVolume);
         }
 
-        transform.localScale = targetScale;
+        transform.localScale = scaleStep;
         lastProgress = progress;
     }
 

@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &4955046163806374789
+--- !u!1 &5101069380457094820
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,40 +8,42 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 7057607204845735449}
-  - component: {fileID: 8316298052717448079}
-  - component: {fileID: -1025539268692758683}
-  - component: {fileID: 448133046115448661}
-  - component: {fileID: 1901634227057101993}
-  m_Layer: 0
-  m_Name: Sword
+  - component: {fileID: 4941953816121868276}
+  - component: {fileID: 8723911279844970478}
+  - component: {fileID: 1843013368344073725}
+  - component: {fileID: 2733009711082074934}
+  - component: {fileID: 2359290095464154624}
+  - component: {fileID: 3987765211661369931}
+  - component: {fileID: 36140078591119551}
+  m_Layer: 3
+  m_Name: Bigger_LightningBall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &7057607204845735449
+--- !u!4 &4941953816121868276
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4955046163806374789}
+  m_GameObject: {fileID: 5101069380457094820}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 0.5, y: 0.5, z: 1}
+  m_LocalPosition: {x: -3.3, y: -8.9, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!212 &8316298052717448079
+--- !u!212 &8723911279844970478
 SpriteRenderer:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4955046163806374789}
+  m_GameObject: {fileID: 5101069380457094820}
   m_Enabled: 1
   m_CastShadows: 0
   m_ReceiveShadows: 0
@@ -76,8 +78,8 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 2
-  m_Sprite: {fileID: 21300000, guid: 33aa7995bbc993940a9c43d100cd9c94, type: 3}
-  m_Color: {r: 0.49803922, g: 1, b: 1, a: 1}
+  m_Sprite: {fileID: 21300000, guid: 3cb3fe596d6271744855e994b5870af8, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
@@ -87,30 +89,13 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
---- !u!114 &-1025539268692758683
-MonoBehaviour:
+--- !u!58 &1843013368344073725
+CircleCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4955046163806374789}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: db0b2bab1c3a86d429e11e375e2055d3, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  aimTime: 1
-  pauseTime: 0.5
-  flySpeed: 9
-  aimLerpSpeed: 5
-  flyLifetime: 5
---- !u!61 &448133046115448661
-BoxCollider2D:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4955046163806374789}
+  m_GameObject: {fileID: 5101069380457094820}
   m_Enabled: 1
   m_Density: 1
   m_Material: {fileID: 0}
@@ -137,32 +122,84 @@ BoxCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_SpriteTilingProperty:
-    border: {x: 0, y: 0, z: 0, w: 0}
-    pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 4.7206182, y: 3.28}
-    newSize: {x: 1, y: 1}
-    adaptiveTilingThreshold: 0.5
-    drawMode: 0
-    adaptiveTiling: 0
-  m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 4, y: 0.33}
-  m_EdgeRadius: 0
---- !u!114 &1901634227057101993
+  m_Radius: 0.35
+--- !u!114 &2733009711082074934
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4955046163806374789}
+  m_GameObject: {fileID: 5101069380457094820}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: b7a124cba6d8fcd4c9e29e1c5c8aa286, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  Damage: 8
-  Grade: 0
+  Damage: 18
+  Grade: 1
   AttackPosition: 2
   StunDuration: 0.5
-  ParryWindow: 0.2
+  ParryWindow: 0.35
+--- !u!114 &2359290095464154624
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5101069380457094820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a32b4479e849224aba7710ca5841f03, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chargeDuration: 3
+  targetScale: {x: 4, y: 4, z: 1}
+  baseLaunchSpeed: 3
+  maxFlightTime: 15
+  chargeSound: {fileID: 8300000, guid: 61d7fc0659a844e4cbdf6df694561cfd, type: 3}
+  launchSound: {fileID: 8300000, guid: 5f614b54cbad12f4a8a3544acce2fcad, type: 3}
+  soundVolume: 0.6
+--- !u!50 &3987765211661369931
+Rigidbody2D:
+  serializedVersion: 4
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5101069380457094820}
+  m_BodyType: 1
+  m_Simulated: 1
+  m_UseFullKinematicContacts: 0
+  m_UseAutoMass: 0
+  m_Mass: 1
+  m_LinearDrag: 0
+  m_AngularDrag: 0.05
+  m_GravityScale: 1
+  m_Material: {fileID: 0}
+  m_IncludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_ExcludeLayers:
+    serializedVersion: 2
+    m_Bits: 0
+  m_Interpolate: 0
+  m_SleepingMode: 1
+  m_CollisionDetection: 0
+  m_Constraints: 0
+--- !u!114 &36140078591119551
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5101069380457094820}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8d0f2af01587f59409f1bd7d240c9bc6, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  flashColor: {r: 1, g: 0.9329592, b: 0, a: 1}
+  flashColorCoverage: 0.5
+  flashColorCoverageVariation: 0.2
+  enableFlash: 1
