@@ -2191,11 +2191,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 6940304056694073265, guid: b085cc6cb7d11864684b10dd1fc2dfcb, type: 3}
       propertyPath: spawnPoint.x
-      value: 7.43
+      value: 6.6
       objectReference: {fileID: 0}
     - target: {fileID: 6940304056694073265, guid: b085cc6cb7d11864684b10dd1fc2dfcb, type: 3}
       propertyPath: spawnPoint.y
-      value: 1.24
+      value: -3.4
       objectReference: {fileID: 0}
     - target: {fileID: 6940304056694073265, guid: b085cc6cb7d11864684b10dd1fc2dfcb, type: 3}
       propertyPath: spawnPoint.z
