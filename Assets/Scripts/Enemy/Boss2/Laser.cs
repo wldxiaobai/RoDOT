@@ -22,6 +22,9 @@ public class Laser : MonoBehaviour
 
     private readonly ActSeq actSeq = new();
 
+    public bool IsActive => actSeq.IsPlaying;
+    public float TotalDuration => appearTime + durationTime + disappearTime;
+
     private void Awake()
     {
         laserBody.SetActive(false);

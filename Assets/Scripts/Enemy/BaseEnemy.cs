@@ -448,6 +448,13 @@ public class BaseEnemy : MonoBehaviour
         InvincibleTimer.StopTimer();
     }
 
+    protected void ForceRedecide()
+    {
+        if (enemyStateMachine == null) return;
+        if (enemyStateMachine.CurrentStateName == DeathStateName) return;
+        enemyStateMachine.TransitionTo(DecisionStateName);
+    }
+
     public void OnCollisionEnter2D(Collision2D collision)
     {
         HandleIncomingAttack(collision.gameObject);

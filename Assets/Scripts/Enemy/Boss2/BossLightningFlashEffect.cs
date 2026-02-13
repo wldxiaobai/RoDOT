@@ -11,22 +11,48 @@ public class BossLightningFlashEffect : MonoBehaviour
     [SerializeField] [Range(0f, 1f)] private float flashColorCoverage = 0.5f;
     [Tooltip("闪烁颜色覆盖率的变化幅度")]
     [SerializeField] [Range(0f, 1f)] private float flashColorCoverageVariation = 0.2f;
+    [Tooltip("是否开启闪烁")]
+    [SerializeField] private bool enableFlash = true;
 
     private SpriteRenderer spriteRenderer;
     private Material material;
+
+    public bool EnableFlash
+    {
+        get => enableFlash;
+        set
+        {
+            enableFlash = value;
+            if (material == null) return;
+            if (value)
+            {
+                SetColor(flashColor);
+            }
+            else
+            {
+                SetColorCoverage(0f);
+            }
+        }
+    }
 
     private void Awake()
     {
         spriteRenderer = GetComponent<SpriteRenderer>();
         material = spriteRenderer.material;
-        SetColor(flashColor);
+        if (enableFlash)
+        {
+            SetColor(flashColor);
+        }
     }
 
     private void Update()
     {
-        float min = Mathf.Clamp01(flashColorCoverage - flashColorCoverageVariation);
-        float max = Mathf.Clamp01(flashColorCoverage + flashColorCoverageVariation);
-        SetColorCoverage(Random.Range(min, max));
+        if (enableFlash)
+        {
+            float min = Mathf.Clamp01(flashColorCoverage - flashColorCoverageVariation);
+            float max = Mathf.Clamp01(flashColorCoverage + flashColorCoverageVariation);
+            SetColorCoverage(Random.Range(min, max));
+        }
     }
 
     private void SetColorCoverage(float c)
