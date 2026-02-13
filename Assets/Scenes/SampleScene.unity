@@ -5608,7 +5608,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   currentHP: 1
-  isAlive: 1
 --- !u!1001 &1422816953
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -5965,7 +5964,7 @@ Transform:
   m_GameObject: {fileID: 1638857936}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -7, y: -2, z: 0}
+  m_LocalPosition: {x: 33, y: -5, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -6172,6 +6171,8 @@ GameObject:
   m_Component:
   - component: {fileID: 1723696150}
   - component: {fileID: 1723696151}
+  - component: {fileID: 1723696152}
+  - component: {fileID: 1723696153}
   m_Layer: 0
   m_Name: Door
   m_TagString: Untagged
@@ -6246,6 +6247,40 @@ SpriteRenderer:
   m_WasSpriteAssigned: 1
   m_MaskInteraction: 0
   m_SpriteSortPoint: 0
+--- !u!95 &1723696152
+Animator:
+  serializedVersion: 5
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723696149}
+  m_Enabled: 1
+  m_Avatar: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: 3cf351064b7eef245b62f114c341157f, type: 2}
+  m_CullingMode: 0
+  m_UpdateMode: 0
+  m_ApplyRootMotion: 0
+  m_LinearVelocityBlending: 0
+  m_StabilizeFeet: 0
+  m_WarningMessage: 
+  m_HasTransformHierarchy: 1
+  m_AllowConstantClipSamplingOptimization: 1
+  m_KeepAnimatorStateOnDisable: 0
+  m_WriteDefaultValuesOnDisable: 0
+--- !u!114 &1723696153
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1723696149}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f06d861c89ed43344a277cde7f4520fb, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  scene: {fileID: 1407751348}
 --- !u!1 &1726345813
 GameObject:
   m_ObjectHideFlags: 0
@@ -7865,6 +7900,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 1909922294}
     m_Modifications:
+    - target: {fileID: 3729148055880560546, guid: c54d2987056d79b4fa8c86723fe4605f, type: 3}
+      propertyPath: m_Color.a
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4909778538823971585, guid: c54d2987056d79b4fa8c86723fe4605f, type: 3}
       propertyPath: m_LocalPosition.x
       value: 3.32

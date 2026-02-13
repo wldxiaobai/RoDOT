@@ -12,13 +12,9 @@ public class CameraShakeManager : Globalizer<CameraShakeManager>
     private Vector3 straightShakeRestPosition;
     private Quaternion rotateShakeRestRotation;
 
-    protected override void GlobeInit()
-    {
-        cameraTrans = GameObject.FindGameObjectWithTag(cameraTag).transform;
-    }
-
     public void ShakeStraight(Vector2 dir, float duration, float magnitude)
     {
+        cameraTrans = GameObject.FindGameObjectWithTag(cameraTag).transform;
         if (cameraTrans == null || duration <= 0f || magnitude <= 0f)
         {
             return;
@@ -35,6 +31,7 @@ public class CameraShakeManager : Globalizer<CameraShakeManager>
 
     public void ShakeRotate(float duration, float magnitude)
     {
+        cameraTrans = GameObject.FindGameObjectWithTag(cameraTag).transform;
         if (cameraTrans == null || duration <= 0f || magnitude <= 0f)
         {
             return;

@@ -1060,6 +1060,7 @@ public class PlayerStateMachine : MonoBehaviour
         {
             FlashEffect(flashDuration, blockFlashColor);
             FreezeFrameManager.Instance.TriggerFreezeFrame();
+            Debug.Log("格挡成功，触发额外效果");
             CameraShakeManager.Instance.ShakeStraight(Vector2.left, blockShakeDuration, blockShakeMagnitude);
             playerAudio.PlayParryAudio();
         }
@@ -1109,14 +1110,12 @@ public class PlayerStateMachine : MonoBehaviour
             var incoming = hitInfo.GetHitInfo();
             if (tryCatchInfo && HitOnDirection(incoming))
             {
-                Debug.Log("格挡状态下收到攻击");
                 BlockedHitInfo = incoming;
                 incomingHitInfo.Clear();
                 ExtraBlockEffect(!defending);
             }
             else if (!invincibleTimer.IsRunning)
             {
-                Debug.Log("常态下收到攻击");
                 incomingHitInfo = incoming;
                 BlockedHitInfo.Clear();
                 ProcessIncomingHit();

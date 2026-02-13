@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class SceneThingsOutPut : MonoBehaviour
@@ -6,9 +7,9 @@ public class SceneThingsOutPut : MonoBehaviour
     [Tooltip("当前生命值")]
     public int currentHP;
 
-    [Header("状态")]
-    [Tooltip("是否存活（血量>0时为true）")]
-    public bool isAlive = true;
+    private bool isAlive = true;
+
+    public Action openDoor;
 
     private void HandleIncomingAttack(GameObject other)
     {
@@ -26,6 +27,7 @@ public class SceneThingsOutPut : MonoBehaviour
                 if (currentHP <= 0 && isAlive)
                 {
                     isAlive = false;
+                    openDoor?.Invoke();
                 }
             }
         }

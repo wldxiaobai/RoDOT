@@ -100,7 +100,6 @@ public class BaseEnemy : MonoBehaviour
         }
         if (behaviourDictionary.ContainsKey(skillName))
         {
-            Debug.LogWarning($"Enemy {enemyName} already has a behaviour named {skillName}. It will be overwritten.");
         }
         behaviourDictionary[skillName] = newBehaviour;
     }
@@ -113,7 +112,6 @@ public class BaseEnemy : MonoBehaviour
         }
         else
         {
-            Debug.LogWarning($"Enemy {enemyName} does not have a behaviour named {skillName}.");
             return new EnemyBehaviour(0f);
         }
     }
@@ -225,7 +223,6 @@ public class BaseEnemy : MonoBehaviour
         if (!ShouldPlayEntrance)
         {
             enemyStateMachine.TransitionTo(DecisionStateName);
-            Debug.Log($"[{enemyName}] No entrance sequence. Transitioning to {DecisionStateName}.");
             return;
         }
 
@@ -239,7 +236,6 @@ public class BaseEnemy : MonoBehaviour
         {
             entranceSequencePlaying = false;
             enemyStateMachine.TransitionTo(DecisionStateName);
-            Debug.Log($"[{enemyName}] Entrance sequence finished. Transitioning to {DecisionStateName}.");
         }
     }
 
@@ -256,7 +252,6 @@ public class BaseEnemy : MonoBehaviour
     {
         PrepareNextBehaviour();
         enemyStateMachine.TransitionTo(BehaviourStateName);
-        Debug.Log($"[{enemyName}] Transitioning to {BehaviourStateName} with behaviour {currentBehaviourName}.");
     }
 
     private void PrepareNextBehaviour()
@@ -309,7 +304,6 @@ public class BaseEnemy : MonoBehaviour
                     Debug.Log($"未注册 {currentBehaviourName}");
                 }
                 else
-                    Debug.Log($"{currentBehaviourName} 已结束");
                 enemyStateMachine.TransitionTo(DecisionStateName);
             }
             return;
@@ -379,7 +373,6 @@ public class BaseEnemy : MonoBehaviour
 
         currentBehaviour.skillBody.Play(this);
         behaviourSequenceStarted = true;
-        Debug.Log($"{currentBehaviourName} 已开始");
     }
 
     private void FinalizeDeath()
