@@ -3,58 +3,23 @@ using System.Collections;
 
 public class DoorOpen : MonoBehaviour
 {
-    public Sprite[] frames;
-    public float frameRate = 0.5f;
-    public SceneThingsOutPut targetSceneThing;
+    [SerializeField] private SceneThingsOutPut scene;
 
-    private SpriteRenderer spriteRenderer;
-    private bool hasPlayed = false;
+    private Animator animator;
 
-    private void Start()
+    void Start()
     {
-        spriteRenderer = GetComponent<SpriteRenderer>();
-        if (spriteRenderer == null)
-        {
-            Debug.LogError("DoorOpen需要SpriteRenderer组件！");
-            enabled = false;
-            return;
-        }
-        if (frames != null && frames.Length > 0)
-        {
-            spriteRenderer.sprite = frames[0];
-        }
-        if (targetSceneThing != null)
-        {
-            StartCoroutine(CheckTargetAlive());
-        }
+        animator = GetComponent<Animator>();
+        scene.openDoor += DoorOpening;
     }
 
-    private IEnumerator CheckTargetAlive()
+    void OnDestroy()
     {
-        while (targetSceneThing != null && targetSceneThing.isAlive)
-        {
-            yield return null;
-        }
-        if (!hasPlayed)
-        {
-            PlayAnimation();
-        }
-    }
-    public void PlayAnimation()
-    {
-        if (hasPlayed) return;
-        if (frames == null || frames.Length == 0) return;
-
-        StartCoroutine(PlayFrames());
+        scene.openDoor -= DoorOpening;
     }
 
-    private IEnumerator PlayFrames()
+    private void DoorOpening()
     {
-        hasPlayed = true;
-        for (int i = 0; i < frames.Length; i++)
-        {
-            spriteRenderer.sprite = frames[i];
-            yield return new WaitForSeconds(1f / frameRate);
-        }
+        animator.SetTrigger("open");
     }
 }
