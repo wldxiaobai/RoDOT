@@ -52,7 +52,10 @@ public class Saver : MonoBehaviour
                 return;
 
             Sharpness.Instance.FullSharpness(); // 恢复锐利度
-            PlayerHealth.Instance.FullHeal(); // 恢复生命值
+            if (!isActivated)
+            {
+                PlayerHealth.Instance.FullHeal(); // 恢复生命值
+            }
             AudioManager.PlaySound(sharpnessSound, transform.position, sharpnessSoundVolume); // 播放磨刀音效
             var incoming = hitInfo.GetHitInfo();
             if (incoming.IsValid)
@@ -88,7 +91,7 @@ public class Saver : MonoBehaviour
     private void SetSaverActivate(bool active)
     {
         // 只有当存档点从未激活变为激活时才生成旗帜，避免重复生成
-        if (!isActivated && active)
+        if (!isActivated && active && flagPerfab != null)
         {
             SpawnFlag();
         }
