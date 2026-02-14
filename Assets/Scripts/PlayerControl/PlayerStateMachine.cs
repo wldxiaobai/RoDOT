@@ -207,6 +207,12 @@ public class PlayerStateMachine : MonoBehaviour
     {
         grounded = false;
         _stateMachine.Enter();
+
+        if (playerAudio == null)
+        {
+            playerAudio = GetComponent<PlayerAudio>();
+        }
+        playerAudio.PlayRespawnAudio();
     }
 
     // ==== 主循环: 输入与状态更新 ==== //
@@ -654,6 +660,7 @@ public class PlayerStateMachine : MonoBehaviour
     // ==== 死亡逻辑 ==== //
     private void StartDeath()
     {
+        playerAudio.PlayDeathAudio();
         StopAllActiveCombatCoroutines();
         AdjustAnimatorSpeedForClip(deathAnim, deathDuration);
         _animator.Play(deathAnim, 0, 0);

@@ -174,7 +174,7 @@ MonoBehaviour:
   destroyOnDeath: 1
   maxHP: 1000
   enemyName: Boss2
-  phase2HealthThreshold: 50
+  phase2HealthThreshold: 25
   phaseTransitionTime: 2
   phaseTransitionRiseDistance: 2.7
   headShellObject: {fileID: 719360627}
