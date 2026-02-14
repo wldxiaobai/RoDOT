@@ -839,7 +839,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
@@ -1697,7 +1697,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
@@ -2485,7 +2485,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   needEntrance: 0
   destroyOnDeath: 0
-  maxHP: 400
+  maxHP: 300
   enemyName: Enemy
   sawObject: {fileID: 375377782}
   arenaMin: {x: 70, y: -1}
@@ -3189,7 +3189,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
@@ -4609,7 +4609,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
@@ -6269,7 +6269,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
@@ -6370,7 +6370,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
@@ -8128,7 +8128,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
