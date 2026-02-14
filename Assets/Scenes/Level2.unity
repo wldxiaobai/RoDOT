@@ -140,11 +140,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: idleDuration
@@ -876,11 +876,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: idleDuration
@@ -2094,6 +2094,10 @@ PrefabInstance:
       value: DefenseTower (3)
       objectReference: {fileID: 0}
     - target: {fileID: 4444961252036372680, guid: 39180ad924ed86448adb311f9bdfdacc, type: 3}
+      propertyPath: maxHP
+      value: 40
+      objectReference: {fileID: 0}
+    - target: {fileID: 4444961252036372680, guid: 39180ad924ed86448adb311f9bdfdacc, type: 3}
       propertyPath: chargePace
       value: 0.8
       objectReference: {fileID: 0}
@@ -2483,11 +2487,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: idleDuration
@@ -3509,11 +3513,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: idleDuration
@@ -3894,6 +3898,10 @@ PrefabInstance:
     - target: {fileID: 3286185788024852914, guid: 39180ad924ed86448adb311f9bdfdacc, type: 3}
       propertyPath: m_Name
       value: DefenseTower (2)
+      objectReference: {fileID: 0}
+    - target: {fileID: 4444961252036372680, guid: 39180ad924ed86448adb311f9bdfdacc, type: 3}
+      propertyPath: maxHP
+      value: 40
       objectReference: {fileID: 0}
     - target: {fileID: 4444961252036372680, guid: 39180ad924ed86448adb311f9bdfdacc, type: 3}
       propertyPath: chargePace
@@ -5871,11 +5879,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: idleDuration
@@ -6632,11 +6640,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: maxHP
-      value: 75
+      value: 45
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: chaseSpeed
-      value: 5
+      value: 3
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: idleDuration
