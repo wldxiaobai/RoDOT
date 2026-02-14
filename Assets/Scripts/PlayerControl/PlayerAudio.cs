@@ -16,6 +16,7 @@ public class PlayerAudio : MonoBehaviour
     [SerializeField] private AudioClip dashAudio; // 冲刺音效
     [SerializeField] private AudioClip defendedAudio; // 防御音效
     [SerializeField] private AudioClip parryAudio; // 格挡音效
+    [SerializeField] private AudioClip RespawnAudio; // 重生音效
 
     public void PlayJumpAudio()
     {
@@ -60,6 +61,11 @@ public class PlayerAudio : MonoBehaviour
     public void PlayParryAudio()
     {
         PlayClip(parryAudio);
+    }
+
+    public void PlayRespawnAudio()
+    {
+        PlayClip(RespawnAudio);
     }
 
     private void PlayClip(AudioClip clip)

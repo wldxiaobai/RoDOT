@@ -50,6 +50,11 @@ MonoBehaviour:
   width: 0.5
   durationTime: 2
   disappearTime: 0.5
+  volume: 1
+  appearSfx: {fileID: 8300000, guid: c97267c38de1bae40ad55b0c63976f43, type: 3}
+  burstSfx: {fileID: 8300000, guid: ae029f68b990b164b8679575f441ee3c, type: 3}
+  durationSfx: {fileID: 8300000, guid: f28a305045b970b48bf57ee475a6aff7, type: 3}
+  disappearSfx: {fileID: 8300000, guid: 8475cfee0703ab04da44b5e92437c9aa, type: 3}
   laserBody: {fileID: 5823039606554382319}
   laserHead: {fileID: 6825142890245238341}
 --- !u!1 &5823039606554382319

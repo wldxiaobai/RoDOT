@@ -175,6 +175,14 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
+      propertyPath: patrolCenterOffset.x
+      value: 0.48
+      objectReference: {fileID: 0}
+    - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
+      propertyPath: patrolCenterOffset.y
+      value: -0.67
+      objectReference: {fileID: 0}
+    - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: detectionLossMultiplier
       value: 1.5
       objectReference: {fileID: 0}
@@ -909,6 +917,10 @@ PrefabInstance:
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: hurtIdleAfterRetreat
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
+      propertyPath: patrolCenterOffset.x
+      value: 0.14
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: detectionLossMultiplier
@@ -2520,6 +2532,10 @@ PrefabInstance:
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: hurtIdleAfterRetreat
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
+      propertyPath: patrolCenterOffset.x
+      value: -1.19
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: detectionLossMultiplier
@@ -5914,6 +5930,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
+      propertyPath: patrolCenterOffset.x
+      value: -2.24
+      objectReference: {fileID: 0}
+    - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: detectionLossMultiplier
       value: 1.5
       objectReference: {fileID: 0}
@@ -6675,6 +6695,10 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
+      propertyPath: patrolCenterOffset.x
+      value: 1.91
+      objectReference: {fileID: 0}
+    - target: {fileID: 5164486066347448247, guid: c431ed19a8fde144ca4ecefbf3a93ae8, type: 3}
       propertyPath: detectionLossMultiplier
       value: 1.5
       objectReference: {fileID: 0}
@@ -7108,13 +7132,13 @@ SceneRoots:
   - {fileID: 991177248}
   - {fileID: 1402495792}
   - {fileID: 837867208}
-  - {fileID: 1873503146}
   - {fileID: 195354451}
   - {fileID: 673737291}
   - {fileID: 986431}
   - {fileID: 126904733}
   - {fileID: 1004845172}
   - {fileID: 492517893}
+  - {fileID: 1873503146}
   - {fileID: 913853901}
   - {fileID: 1682921613}
   - {fileID: 1885080341}

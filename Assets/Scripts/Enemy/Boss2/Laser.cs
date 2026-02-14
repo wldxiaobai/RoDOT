@@ -14,6 +14,20 @@ public class Laser : MonoBehaviour
     [Tooltip("激光消失用时")]
     [SerializeField] private float disappearTime = 0.5f;
 
+    [Header("音效设置")]
+    [Tooltip("音量")]
+    [Range(0f, 1f)] [SerializeField] private float volume = 1f;
+    [Tooltip("激光出现音效")]
+    [SerializeField] private AudioClip appearSfx;
+    [Tooltip("激光爆发音效")]
+    [SerializeField] private AudioClip burstSfx;
+    [Tooltip("激光持续音效")]
+    [SerializeField] private AudioClip durationSfx;
+    [Tooltip("激光消失音效")]
+    [SerializeField] private AudioClip disappearSfx;
+    [Tooltip("激光音效淡出时间")]
+    [SerializeField] private float sfxFadeOutTime = 0.5f;
+
     [Header("子物体设置")]
     [Tooltip("激光主体")]
     [SerializeField] private GameObject laserBody;
@@ -21,6 +35,7 @@ public class Laser : MonoBehaviour
     [SerializeField] private GameObject laserHead;
 
     private readonly ActSeq actSeq = new();
+    private SoundHandle? currentSfxHandle = null;
 
     public bool IsActive => actSeq.IsPlaying;
     public float TotalDuration => appearTime + durationTime + disappearTime;
@@ -67,6 +82,12 @@ public class Laser : MonoBehaviour
         laserBody.SetActive(true);
         laserHead.SetActive(true);
 
+        if (currentSfxHandle.HasValue && currentSfxHandle.Value.IsPlaying)
+        {
+            AudioManager.StopSound(currentSfxHandle.Value, sfxFadeOutTime);
+        }
+        currentSfxHandle = AudioManager.PlaySound(appearSfx, transform.position, volume);
+
         // laserHead 直接设置目标尺寸
         var headScale = laserHead.transform.localScale;
         headScale.x = width;
@@ -97,10 +118,40 @@ public class Laser : MonoBehaviour
 
     /// <summary>
     /// 持续阶段：保持激光不变，等待 durationTime。
+    /// burstSfx 播完前以淡入淡出方式交叉过渡到 durationSfx。
     /// </summary>
     private IEnumerator DurationPhase()
     {
-        yield return new WaitForSeconds(durationTime);
+        if (currentSfxHandle.HasValue && currentSfxHandle.Value.IsPlaying)
+        {
+            AudioManager.StopSound(currentSfxHandle.Value, sfxFadeOutTime);
+        }
+        currentSfxHandle = AudioManager.PlaySound(burstSfx, transform.position, volume);
+
+        bool crossfadeStarted = false;
+        float elapsed = 0f;
+        while (elapsed < durationTime)
+        {
+            elapsed += Time.deltaTime;
+
+            if (!crossfadeStarted && currentSfxHandle.HasValue)
+            {
+                float remaining = currentSfxHandle.Value.RemainingTime;
+                if (remaining <= sfxFadeOutTime && remaining > 0f)
+                {
+                    AudioManager.StopSound(currentSfxHandle.Value, remaining);
+                    currentSfxHandle = AudioManager.PlaySoundWithFadeIn(durationSfx, transform.position, volume, remaining);
+                    crossfadeStarted = true;
+                }
+                else if (!currentSfxHandle.Value.IsPlaying)
+                {
+                    currentSfxHandle = AudioManager.PlaySound(durationSfx, transform.position, volume);
+                    crossfadeStarted = true;
+                }
+            }
+
+            yield return null;
+        }
     }
 
     /// <summary>
@@ -108,6 +159,12 @@ public class Laser : MonoBehaviour
     /// </summary>
     private IEnumerator DisappearPhase()
     {
+        if (currentSfxHandle.HasValue && currentSfxHandle.Value.IsPlaying)
+        {
+            AudioManager.StopSound(currentSfxHandle.Value, sfxFadeOutTime);
+        }
+        currentSfxHandle = AudioManager.PlaySound(disappearSfx, transform.position, volume);
+
         float elapsed = 0f;
         while (elapsed < disappearTime)
         {

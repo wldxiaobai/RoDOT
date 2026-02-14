@@ -104,6 +104,8 @@ MonoBehaviour:
   flySpeed: 9
   aimLerpSpeed: 5
   flyLifetime: 5
+  volume: 1
+  flySfx: {fileID: 8300000, guid: 5331e2758c1081b448e037c7f3c46e08, type: 3}
 --- !u!61 &448133046115448661
 BoxCollider2D:
   m_ObjectHideFlags: 0

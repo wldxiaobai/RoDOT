@@ -17,6 +17,12 @@ public class FlyingSword : MonoBehaviour
     [Tooltip("飞行最大时间")]
     [SerializeField] private float flyLifetime = 5f;
 
+    [Header("音效设置")]
+    [Tooltip("音量")]
+    [Range(0f, 1f)] [SerializeField] private float volume = 1f;
+    [Tooltip("飞剑发出音效")]
+    [SerializeField] private AudioClip? flySfx;
+
     private Transform? player;
     private readonly ActSeq actSeq = new();
     private Vector2 flyDirection;
@@ -63,6 +69,8 @@ public class FlyingSword : MonoBehaviour
     /// </summary>
     private IEnumerator AimPhase()
     {
+        AudioManager.PlaySound(flySfx, transform.position, volume);
+
         float elapsed = 0f;
         while (elapsed < aimTime)
         {

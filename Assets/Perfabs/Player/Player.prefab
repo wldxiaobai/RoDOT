@@ -565,11 +565,12 @@ MonoBehaviour:
   landAudio: {fileID: 8300000, guid: 523f28d0dacd38744a14d2e99136ca49, type: 3}
   attackAudio: {fileID: 8300000, guid: de34c5230830db742a422bdeb19debb8, type: 3}
   hurtAudio: {fileID: 8300000, guid: 7c162fbe8ca29314f97359092072b0de, type: 3}
-  deathAudio: {fileID: 8300000, guid: 6d23db6a7aba0da4c802d811d194fd85, type: 3}
+  deathAudio: {fileID: 8300000, guid: 55d51eb3d80d05f46a62dab7158421d1, type: 3}
   walkAudio: {fileID: 8300000, guid: 8d574061488cb184cb17c512ee310c68, type: 3}
   dashAudio: {fileID: 8300000, guid: 57ce493e6e85db94197d6e8fe240b17a, type: 3}
   defendedAudio: {fileID: 8300000, guid: db2710e70c3681541aaf770e9c963bc9, type: 3}
   parryAudio: {fileID: 8300000, guid: 62c3a2939a1a76549a41b6653b24901a, type: 3}
+  RespawnAudio: {fileID: 8300000, guid: d747a120a46737947be1e70a3befe3cf, type: 3}
 --- !u!1 &8934441263178172045
 GameObject:
   m_ObjectHideFlags: 0
